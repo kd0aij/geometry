@@ -1,0 +1,25 @@
+package:
+  name: geometry
+  version: "0.0.1"
+
+build:
+  number: 0
+
+source:
+  path: ./
+
+requirements:
+  build:
+    - python  {{python}}
+    - setuptools
+  host:
+    - python
+    - numpy
+    - scipy
+  run:
+    - python
+    - numpy
+    - scipy
+test:
+  imports:
+    - geometry
