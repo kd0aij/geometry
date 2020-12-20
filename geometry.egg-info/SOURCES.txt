@@ -1,7 +1,6 @@
 README.md
 setup.py
 geometry/__init__.py
-geometry/circle.py
 geometry/coordinate_frame.py
 geometry/fitting.py
 geometry/gps.py
