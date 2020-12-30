@@ -15,3 +15,4 @@ from geometry.line import Line
 from geometry.gps import GPSPosition
 from geometry.coordinate_frame import Coord
 #from geometry.circle import Circle2D, Circle3D, Arc
+from geometry.quaternion import Quaternion

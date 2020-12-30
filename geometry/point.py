@@ -15,7 +15,7 @@ import unittest
 from typing import List
 from enum import Enum
 from numbers import Number
-from typing import List, Union
+from typing import List, Union, Dict
 
 
 class Point(object):
@@ -33,12 +33,19 @@ class Point(object):
     def to_tuple(self):
         return(self.x, self.y, self.z)
 
-    def to_dict(self):
+    def to_dict(self, prefix=''):
         return {
-            'x': self.x,
-            'y': self.y,
-            'z': self.z
+            prefix + 'x': self.x,
+            prefix + 'y': self.y,
+            prefix + 'z': self.z
         }
+
+    @staticmethod
+    def from_dict(value: Dict):
+        return Point(value['x'], value['y'], value['z'])
+
+    def __str__(self):
+        return "X:{x:.2f}\nY:{y:.2f}\nZ:{z:.2f}".format(x=self.x, y=self.y, z=self.z)
 
     def __abs__(self):
         # TODO make this numpy array safe

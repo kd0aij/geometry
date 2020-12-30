@@ -14,56 +14,60 @@ from geometry.point import Point
 import unittest
 from typing import List
 
+
 class GPSPosition(object):
-	approx_earth_radius = 6378100 #was 6378137, extra precision removed to match ardupilot
-	LOCATION_SCALING_FACTOR = math.radians(approx_earth_radius)
+    # was 6378137, extra precision removed to match ardupilot
+    approx_earth_radius = 6378100
+    LOCATION_SCALING_FACTOR = math.radians(approx_earth_radius)
 
-	def __init__(self, latitude: float, longitude: float):
-		self._latitude = latitude
-		self._longitude = longitude
-		
-	@property
-	def latitude(self):
-		return self._latitude
-	
-	@latitude.setter
-	def latitude(self, value):
-		self._latitude = value
-	
-	@property
-	def longitude(self):
-		return self._longitude
-	
-	@longitude.setter
-	def longitude(self, value):
-		self._longitude = value
-	
-	def to_tuple(self):
-		return (self.latitude, self.longitude)
+    def __init__(self, latitude: float, longitude: float):
+        self._latitude = latitude
+        self._longitude = longitude
+
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        self._latitude = value
+
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        self._longitude = value
+
+    def to_tuple(self):
+        return (self.latitude, self.longitude)
+
+    def __str__(self):
+        return 'lat: ' + str(self._latitude) + ', long: ' + str(self._longitude)
+
+    def _longitude_scale(self):
+        return max(math.cos(math.radians(self.latitude)), 0.01)
+
+    def _to_xy(self):
+        lat = self._latitude * math.pi / 180
+        lon = self._longitude * math.pi / 180
+
+        return [
+            GPSPosition.approx_earth_radius * math.cos(lat) * math.cos(lon),
+            GPSPosition.approx_earth_radius * math.cos(lat) * math.sin(lon)
+        ]
+
+    def __sub__(self, other) -> Point:
+        return Point(
+            (other.latitude - self.latitude) *
+            GPSPosition.LOCATION_SCALING_FACTOR,
+            -(other.longitude - self.longitude) *
+            GPSPosition.LOCATION_SCALING_FACTOR * self._longitude_scale(),
+            0
+        )
 
 
-	def __str__(self):
-		return 'lat: ' + str(self._latitude) + ', long: ' + str(self._longitude)
-	
-	def _longitude_scale(self):
-		return max(math.cos(math.radians(self.latitude)), 0.01)
-
-	def _to_xy(self):
-		lat = self._latitude * math.pi / 180
-		lon = self._longitude * math.pi / 180
-		
-		return [
-			GPSPosition.approx_earth_radius * math.cos(lat) * math.cos(lon),
-			GPSPosition.approx_earth_radius * math.cos(lat) * math.sin(lon)
-		]
-	
-
-	def __sub__(self, other) -> Point:		
-		return Point(
-			(other.latitude - self.latitude) * GPSPosition.LOCATION_SCALING_FACTOR,
-			-(other.longitude - self.longitude) * GPSPosition.LOCATION_SCALING_FACTOR * self._longitude_scale(),
-			0
-		)
 '''
 // scaling factor from 1e-7 degrees to meters at equator
 // == 1.0e-7 * DEG_TO_RAD * RADIUS_OF_EARTH
@@ -87,9 +91,8 @@ float Location::longitude_scale() const
 
 
 if __name__ == "__main__":
-	home = GPSPosition(51.459387, -2.791393)
-	
-	new = GPSPosition(51.458876, -2.789092)
-	coord = home - new
-	print(coord.x, coord.y)
-	
+    home = GPSPosition(51.459387, -2.791393)
+
+    new = GPSPosition(51.458876, -2.789092)
+    coord = home - new
+    print(coord.x, coord.y)

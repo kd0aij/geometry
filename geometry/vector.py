@@ -111,7 +111,3 @@ def plane_plane_intersect(plane1: Vector, plane2: Vector) -> Vector:
         ),
         direction=axis_direction
     )
-
-
-if __name__ == "__main__":
-    unittest.main()
