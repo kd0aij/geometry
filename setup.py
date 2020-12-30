@@ -19,5 +19,4 @@ setup(
    author='Thomas David',
    author_email='thomasdavid0@gmail.com',
    packages=['geometry'],
-   install_requires=['numpy', 'scipy'], 
 )

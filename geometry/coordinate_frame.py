@@ -13,8 +13,6 @@ from geometry.point import Point, cross_product, arbitrary_perpendicular, is_per
 from geometry.vector import Vector
 from geometry.line import Line
 from typing import List, Union
-from numpy.linalg import inv
-import unittest
 
 
 class Coord(object):
@@ -131,6 +129,3 @@ def det_3x3(mat=List[List[float]]):
         mat[0][1] * mat[1][0] * mat[2][2] - \
         mat[1][2] * mat[2][1] * mat[0][0]
 
-
-if __name__ == "__main__":
-    unittest.main()

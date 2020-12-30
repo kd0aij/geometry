@@ -10,7 +10,6 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 from math import pi, cos, sin, sqrt, acos, asin
-import numpy as np
 import unittest
 from typing import List
 from enum import Enum
@@ -175,15 +174,8 @@ class Point(object):
         ]
 
 
-def np_arrays_from_point_list(points: List[Point]):
-    data = np.empty((len(points), 3))
-    for i, point in enumerate(points):
-        data[i, :] = point.to_list()
-    return data
-
-
 def dot_product(p1: Point, p2: Point):
-    return np.dot(p1.to_list(), p2.to_list())
+    return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z
 
 
 def cos_angle_between(p1: Point, p2: Point):

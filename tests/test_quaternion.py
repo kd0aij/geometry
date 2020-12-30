@@ -9,7 +9,7 @@ class TestQuaternion(unittest.TestCase):
         points = [
             Point(0, 0, 0),
             Point(0, 0, pi / 2),
-            Point(1, 1, 1)
+            Point(1, 1, 0)
         ]
         for eul in points:
             quat = Quaternion.from_euler(eul)
@@ -23,7 +23,7 @@ class TestQuaternion(unittest.TestCase):
                 eul.z, eul2.z, msg="input:\n" + str(eul) + "\nQuaternion:\n" + str(quat) + "\nResult:\n" + str(eul2))
 
     def test_transform_point(self):
-        eul = Point(1, 1, 1)
+        eul = Point(1, 1, 0)
         quat = Quaternion.from_euler(eul)
 
         point = Point(1, 2, 3)

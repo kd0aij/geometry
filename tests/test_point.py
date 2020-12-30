@@ -1,4 +1,4 @@
-from geometry.point import Point, angle_between, is_parallel, scalar_projection, is_perpendicular, min_angle_between
+from geometry.point import Point, angle_between, is_parallel, scalar_projection, is_perpendicular, min_angle_between, dot_product
 import unittest
 from math import pi
 
@@ -118,3 +118,6 @@ class TestGeometry(unittest.TestCase):
         self.assertTrue(is_perpendicular(Point(1, 0, 0), Point(0, 0, 1)))
         self.assertTrue(is_perpendicular(Point(0, 1, 0), Point(1, 0, 0)))
         self.assertFalse(is_perpendicular(Point(1, 0, 0), Point(1, 1, 0)))
+
+    def test_dot_product(self):
+        self.assertEqual(dot_product(Point(1,1,1), Point(1,1,1)), 3)

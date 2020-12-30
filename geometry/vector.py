@@ -9,7 +9,6 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-import numpy as np
 from geometry.point import Point, scalar_projection, is_parallel, vector_projection, cross_product, dot_product
 from typing import List, Union
 from enum import Enum
