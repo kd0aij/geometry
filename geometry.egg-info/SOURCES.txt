@@ -1,0 +1,13 @@
+README.md
+setup.py
+geometry/__init__.py
+geometry/coordinate_frame.py
+geometry/gps.py
+geometry/line.py
+geometry/point.py
+geometry/quaternion.py
+geometry/vector.py
+geometry.egg-info/PKG-INFO
+geometry.egg-info/SOURCES.txt
+geometry.egg-info/dependency_links.txt
+geometry.egg-info/top_level.txt

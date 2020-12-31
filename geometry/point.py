@@ -84,12 +84,12 @@ class Point(object):
 
     def __eq__(self, other):
         if isinstance(other, Point):
-            return self.to_list() == other.to_list()
+            return (other.x == self.x) and (other.y == self.y) and (other.z == self.z)
         else:
             try:
                 return (other == self.x) and (other == self.y) and (other == self.z)
             finally:
-                return NotImplementedError
+                return False
 
     def __mul__(self, other):
         if isinstance(other, Point):

@@ -12,7 +12,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from geometry.point import Point, cross_product, arbitrary_perpendicular, is_perpendicular
 from geometry.vector import Vector
 from geometry.line import Line
+from geometry.quaternion import Quaternion
 from typing import List, Union
+import numpy as np
 
 
 class Coord(object):
@@ -46,15 +48,15 @@ class Coord(object):
 
     @property
     def rotation_matrix(self):
-        return [self.x_axis.to_list(), self.y_axis.to_list(), self.z_axis.to_list()]
+        return np.array([self.x_axis.to_list(), self.y_axis.to_list(), self.z_axis.to_list()])
 
     @property
     def inverse_rotation_matrix(self):
-        return [
+        return np.array([
             [self.x_axis.x, self.y_axis.x, self.z_axis.x],
             [self.x_axis.y, self.y_axis.y, self.z_axis.y],
             [self.x_axis.z, self.y_axis.z, self.z_axis.z]
-        ]
+        ])
 
     def rotate(self, rotation_matrix=List[List[float]]):
         return Coord(
@@ -71,6 +73,9 @@ class Coord(object):
             self.y_axis == other.y_axis and \
             self.z_axis == other.z_axis
 
+    def translate(self, point):
+        return Coord(self.origin + point, self.x_axis, self.y_axis, self.z_axis)
+        
 
 def _transform_point(point: Point, from_coord: Coord, to_coord: Coord):
     temp_point = point.rotate(
@@ -79,53 +84,21 @@ def _transform_point(point: Point, from_coord: Coord, to_coord: Coord):
     return temp_point.rotate(to_coord.rotation_matrix)
 
 
-def transform_point(points: Union[Point, List[Point]], from_coord: Coord = None,
-                    to_coord: Coord = None):
-    if not from_coord:
-        from_coord = Coord.from_nothing()
-    if not to_coord:
-        to_coord = Coord.from_nothing()
-    if isinstance(points, list):
-        out_points = []
-        for point in points:
-            out_points.append(_transform_point(point, from_coord, to_coord))
-        return out_points
-    elif isinstance(points, Point):
-        return _transform_point(points, from_coord, to_coord)
-    else:
-        raise TypeError
 
+class Transformation():
+    def __init__(self, coord_a: Coord, coord_b: Coord):
+        self.coord_a = coord_a
+        self.coord_b = coord_b
+        self.translation = coord_b.origin - coord_a.origin
+        self.rotation = np.dot(self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
 
-def transform_line(lines: Union[Line, List[Line]], from_coord: Coord = None,
-                   to_coord: Coord = None):
-    if not from_coord:
-        from_coord = Coord.from_nothing()
-    if not to_coord:
-        to_coord = Coord.from_nothing()
-    if isinstance(lines, list):
-        out_lines = []
-        for line in lines:
-            out_lines.append(_transform_line(line, from_coord, to_coord))
-        return out_lines
-    elif isinstance(lines, Line):
-        return _transform_line(lines, from_coord, to_coord)
-    else:
-        raise TypeError
+    def rotate(self, point: Point):
+        return point.rotate(self.rotation)
 
-
-def _transform_line(line: Line, from_coord: Coord, to_coord: Coord):
-    return Line(
-        start=_transform_point(line.start, from_coord, to_coord),
-        end=_transform_point(line.end, from_coord, to_coord)
-    )
-
-
-def det_3x3(mat=List[List[float]]):
-    return \
-        mat[0][0] * mat[1][1] * mat[2][2] + \
-        mat[0][1] * mat[1][2] * mat[2][0] + \
-        mat[1][0] * mat[2][1] * mat[0][2] - \
-        mat[0][2] * mat[1][1] * mat[2][0] - \
-        mat[0][1] * mat[1][0] * mat[2][2] - \
-        mat[1][2] * mat[2][1] * mat[0][0]
-
+    def translate(self, point: Point):
+        return point + self.translation
+    
+    def transform(self, point: Union[Point, Quaternion]):
+        if isinstance(point, Point):
+            point = self.translate(point)
+        return self.rotate(point)

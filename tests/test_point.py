@@ -121,3 +121,6 @@ class TestGeometry(unittest.TestCase):
 
     def test_dot_product(self):
         self.assertEqual(dot_product(Point(1,1,1), Point(1,1,1)), 3)
+
+    def test_eq(self):
+        self.assertNotEqual(Point(1,1,1), None)
