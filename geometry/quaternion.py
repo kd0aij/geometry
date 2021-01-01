@@ -62,7 +62,6 @@ class Quaternion():
         )
 
     def to_euler(self):
-
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),
             1 - 2 * (self.x * self.x + self.y * self.y)
