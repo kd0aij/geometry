@@ -81,9 +81,18 @@ class Transformation():
     def __init__(self, coord_a: Coord, coord_b: Coord):
         self.coord_a = coord_a
         self.coord_b = coord_b
-        self.translation = coord_b.origin - coord_a.origin
+
+        self.translation = self.coord_b.origin - self.coord_a.origin
         self.rotation = np.dot(
             self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
+
+        self.pos_vec = np.vectorize(
+            lambda x, y, z: self.point(Point(x, y, z)))
+
+        self.eul_vec = np.vectorize(
+            lambda r, p, y: self.quat(
+                Quaternion.from_euler(Point(r, p, y))).to_tuple()
+        )
 
     def rotate(self, point: Point):
         return point.rotate(self.rotation)
@@ -91,17 +100,8 @@ class Transformation():
     def translate(self, point: Point):
         return point + self.translation
 
-    def transform_point(self, point: Point):
+    def point(self, point: Point):
         return self.rotate(self.translate(point))
 
-    def transform_quat(self, quat: Quaternion):
+    def quat(self, quat: Quaternion):
         return Quaternion(quat.w, self.rotate(quat.axis))
-
-    def pos(self, x, y, z):
-        return self.transform_point(Point(x, y, z)).to_tuple()
-
-    def quat(self, w, x, y, z):
-        return self.transform_quat(Quaternion(w, Point(x, y, z))).to_tuple()
-
-    def eul_to_quat(self, roll, pitch, yaw):
-        return self.transform_quat(Quaternion.from_euler(Point(roll, pitch, yaw))).to_tuple()
