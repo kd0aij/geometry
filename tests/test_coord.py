@@ -36,3 +36,6 @@ class TestTransformation(unittest.TestCase):
             Point(1, 1, 0),
             Point(0, -sqrt(2), 0)
         )
+
+    def test_transform(self):
+        pass

@@ -20,6 +20,9 @@ class Quaternion():
     def z(self):
         return self.axis.z
 
+    def to_tuple(self):
+        return(self.w, self.x, self.y, self.z)
+
     def __abs__(self):
         return sqrt(self.x**2 + self.y**2 + self.z**2 + self.w**2)
 
