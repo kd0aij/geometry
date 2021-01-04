@@ -21,24 +21,8 @@ class GPSPosition(object):
     LOCATION_SCALING_FACTOR = math.radians(approx_earth_radius)
 
     def __init__(self, latitude: float, longitude: float):
-        self._latitude = latitude
-        self._longitude = longitude
-
-    @property
-    def latitude(self):
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value):
-        self._latitude = value
-
-    @property
-    def longitude(self):
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
-        self._longitude = value
+        self.latitude = latitude
+        self.longitude = longitude
 
     def to_tuple(self):
         return (self.latitude, self.longitude)
@@ -66,6 +50,7 @@ class GPSPosition(object):
             GPSPosition.LOCATION_SCALING_FACTOR * self._longitude_scale(),
             0
         )
+        
 
 
 '''
