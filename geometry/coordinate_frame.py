@@ -87,11 +87,11 @@ class Transformation():
             self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
 
         self.pos_vec = np.vectorize(
-            lambda x, y, z: self.point(Point(x, y, z)))
+            lambda *args: self.point(Point(*args)).to_tuple())
 
         self.eul_vec = np.vectorize(
-            lambda r, p, y: self.quat(
-                Quaternion.from_euler(Point(r, p, y))).to_tuple()
+            lambda *args: self.quat(
+                Quaternion.from_euler(Point(*args))).to_tuple()
         )
 
     def rotate(self, point: Point):
