@@ -1,6 +1,7 @@
 README.md
 setup.py
 geometry/__init__.py
+geometry/bounding_box.py
 geometry/coordinate_frame.py
 geometry/gps.py
 geometry/line.py
