@@ -1,10 +1,12 @@
 from geometry.point import Point, dot_product, cross_product
 from math import atan2, asin, copysign, pi, sqrt
 from typing import List, Dict
+import numpy as np
 
 
 class Quaternion():
     def __init__(self, w, axis: Point):
+
         self.w = w
         self.axis = axis
 
@@ -79,6 +81,56 @@ class Quaternion():
         )
 
         return Point(roll, pitch, yaw)
+
+    def to_rotation_matrix(self):
+        """http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+        https://github.com/mortlind/pymath3d/blob/master/math3d/quaternion.py
+        """
+        n = self.norm()
+        s, x, y, z = n.w, n.x, n.y, n.z
+        x2, y2, z2 = n.x**2, n.y**2, n.z**2
+        return [
+            [1 - 2 * (y2 + z2), 2 * x * y - 2 * s * z, 2 * s * y + 2 * x * z],
+            [2 * x * y + 2 * s * z, 1 - 2 * (x2 + z2), -2 * s * x + 2 * y * z],
+            [-2 * s * y + 2 * x * z, 2 * s * x + 2 * y * z, 1 - 2 * (x2 + y2)]
+        ]
+
+    @staticmethod
+    def from_rotation_matrix(M: np.ndarray):
+        """http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+        https://github.com/mortlind/pymath3d/blob/master/math3d/quaternion.py
+        """
+        tr = M.trace() + 1 
+        if tr > 1e-10:
+            w = 0.5 / np.sqrt(tr)
+            return Quaternion(
+                0.25 / w,
+                Point(
+                    w * (M[2, 1] - M[1, 2]),
+                    w * (M[0, 2] - M[2, 0]),
+                    w * (M[1, 0] - M[0, 1])
+                )
+            ).norm()
+        else:
+            diag = M.diagonal()
+            u = diag.argmax()
+            v = (u + 1) % 3
+            w = (v + 1) % 3
+            r = np.sqrt(1 + M[u, u] - M[v, v] - M[w, w])
+            if abs(r) < 1e-10:
+                return Quaternion(
+                    1,  # utils.flt(1.0)?
+                    Point(0, 0, 0)
+                )
+            else:
+                tworinv = 1.0 / (2 * r)
+                return Quaternion(
+                    (M[w, v] - M[v, w]) * tworinv,
+                    Point(
+                        0.5 * r,
+                        (M[u, v] + M[v, u]) * tworinv,
+                        (M[w, u] + M[u, w]) * tworinv
+                    )).norm()
 
     def __str__(self):
         return "W:{w:.2f}\nX:{x:.2f}\nY:{y:.2f}\nZ:{z:.2f}".format(w=self.w, x=self.x, y=self.y, z=self.z)

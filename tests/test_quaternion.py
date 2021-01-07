@@ -2,6 +2,7 @@ import unittest
 from geometry.quaternion import Quaternion
 from geometry.point import Point
 from math import pi
+import numpy as np
 
 
 class TestQuaternion(unittest.TestCase):
@@ -34,3 +35,20 @@ class TestQuaternion(unittest.TestCase):
         self.assertAlmostEqual(epoint.x, qpoint.x)
         self.assertAlmostEqual(epoint.y, qpoint.y)
         self.assertAlmostEqual(epoint.z, qpoint.z)
+
+    def test_from_rotation_matrix(self):
+        
+        rmats = [
+            [[1,0,0],[0,1,0],[0,0,1]],
+            Point(1,1,0).to_rotation_matrix(),
+            Point(0.7, -1.2, 1).to_rotation_matrix()
+            ]
+
+        for rmat in rmats:
+            quat = Quaternion.from_rotation_matrix(np.array(rmat))
+
+            rmat2 = quat.to_rotation_matrix()
+
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    self.assertAlmostEqual(rmat[i][j], rmat2[i][j])

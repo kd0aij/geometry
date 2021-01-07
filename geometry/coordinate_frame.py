@@ -16,6 +16,7 @@ from geometry.quaternion import Quaternion
 from typing import List, Union
 import numpy as np
 
+# TODO look at scipy.spatial.transform.Rotation
 
 class Coord(object):
     __slots__ = ["origin", "x_axis", "y_axis", "z_axis",
