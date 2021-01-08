@@ -9,11 +9,9 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from geometry.point import Point, cross_product, arbitrary_perpendicular, is_perpendicular
-from geometry.vector import Vector
-from geometry.line import Line
-from geometry.quaternion import Quaternion
-from typing import List, Union
+
+from . import Point, cross_product
+from typing import List
 import numpy as np
 
 # TODO look at scipy.spatial.transform.Rotation
@@ -77,32 +75,3 @@ class Coord(object):
     def translate(self, point):
         return Coord(self.origin + point, self.x_axis, self.y_axis, self.z_axis)
 
-
-class Transformation():
-    def __init__(self, coord_a: Coord, coord_b: Coord):
-        self.coord_a = coord_a
-        self.coord_b = coord_b
-
-        self.translation = self.coord_b.origin - self.coord_a.origin
-        self.rotation = np.dot(
-            self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
-
-        self.pos_vec = np.vectorize(
-            lambda *args: self.point(Point(*args)).to_tuple())
-
-        self.eul_vec = np.vectorize(
-            lambda *args: self.quat(
-                Quaternion.from_euler(Point(*args))).to_tuple()
-        )
-
-    def rotate(self, point: Point):
-        return point.rotate(self.rotation)
-
-    def translate(self, point: Point):
-        return point + self.translation
-
-    def point(self, point: Point):
-        return self.rotate(self.translate(point))
-
-    def quat(self, quat: Quaternion):
-        return Quaternion(quat.w, self.rotate(quat.axis))

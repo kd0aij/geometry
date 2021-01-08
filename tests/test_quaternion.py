@@ -1,6 +1,5 @@
 import unittest
-from geometry.quaternion import Quaternion
-from geometry.point import Point
+from geometry import Quaternion, Point
 from math import pi
 import numpy as np
 

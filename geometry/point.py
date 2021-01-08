@@ -9,22 +9,17 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from math import pi, cos, sin, sqrt, acos, asin
-import unittest
+from math import pi, cos, sin, sqrt, acos
 from typing import List
-from enum import Enum
 from numbers import Number
 from typing import List, Union, Dict
 
 
 class Point(object):
-    __slots__ = ["x", "y", "z"]
-
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
-    fit_id = 0
 
     def to_list(self):
         return [self.x, self.y, self.z]

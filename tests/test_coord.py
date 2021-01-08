@@ -1,6 +1,5 @@
 import unittest
-from geometry.coordinate_frame import Coord, Transformation
-from geometry import Point
+from geometry import Coord, Transformation, Point
 from math import sqrt
 import numpy as np
 

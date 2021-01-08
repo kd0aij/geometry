@@ -1,4 +1,5 @@
-from geometry.point import Point, dot_product, cross_product
+
+from . import Point, dot_product, cross_product
 from math import atan2, asin, copysign, pi, sqrt
 from typing import List, Dict
 import numpy as np
