@@ -23,6 +23,10 @@ class Quaternion():
     def z(self):
         return self.axis.z
 
+    @staticmethod
+    def from_tuple(w, x, y, z):
+        return Quaternion(w, Point(x,y,z))
+
     def to_tuple(self):
         return(self.w, self.x, self.y, self.z)
 
