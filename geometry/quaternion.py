@@ -112,43 +112,28 @@ class Quaternion():
             [2 * x * y + 2 * s * z, 1 - 2 * (x2 + z2), -2 * s * x + 2 * y * z],
             [-2 * s * y + 2 * x * z, 2 * s * x + 2 * y * z, 1 - 2 * (x2 + y2)]
         ]
-
+        
     @staticmethod
-    def from_rotation_matrix(M: np.ndarray):
-        """http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-        https://github.com/mortlind/pymath3d/blob/master/math3d/quaternion.py
-        """
-        tr = M.trace() + 1 
-        if tr > 1e-10:
-            w = 0.5 / np.sqrt(tr)
-            return Quaternion(
-                0.25 / w,
-                Point(
-                    w * (M[2, 1] - M[1, 2]),
-                    w * (M[0, 2] - M[2, 0]),
-                    w * (M[1, 0] - M[0, 1])
-                )
-            ).norm()
-        else:
-            diag = M.diagonal()
-            u = diag.argmax()
-            v = (u + 1) % 3
-            w = (v + 1) % 3
-            r = np.sqrt(1 + M[u, u] - M[v, v] - M[w, w])
-            if abs(r) < 1e-10:
-                return Quaternion(
-                    1,  # utils.flt(1.0)?
-                    Point(0, 0, 0)
-                )
+    def from_rotation_matrix(matrix: np.ndarray):
+        m = matrix.conj().transpose() # This method assumes row-vector and postmultiplication of that vector
+        if m[2, 2] < 0:
+            if m[0, 0] > m[1, 1]:
+                t = 1 + m[0, 0] - m[1, 1] - m[2, 2]
+                q = [m[1, 2]-m[2, 1],  t,  m[0, 1]+m[1, 0],  m[2, 0]+m[0, 2]]
             else:
-                tworinv = 1.0 / (2 * r)
-                return Quaternion(
-                    (M[w, v] - M[v, w]) * tworinv,
-                    Point(
-                        0.5 * r,
-                        (M[u, v] + M[v, u]) * tworinv,
-                        (M[w, u] + M[u, w]) * tworinv
-                    )).norm()
+                t = 1 - m[0, 0] + m[1, 1] - m[2, 2]
+                q = [m[2, 0]-m[0, 2],  m[0, 1]+m[1, 0],  t,  m[1, 2]+m[2, 1]]
+        else:
+            if m[0, 0] < -m[1, 1]:
+                t = 1 - m[0, 0] - m[1, 1] + m[2, 2]
+                q = [m[0, 1]-m[1, 0],  m[2, 0]+m[0, 2],  m[1, 2]+m[2, 1],  t]
+            else:
+                t = 1 + m[0, 0] + m[1, 1] + m[2, 2]
+                q = [t,  m[1, 2]-m[2, 1],  m[2, 0]-m[0, 2],  m[0, 1]-m[1, 0]]
+
+        q = np.array(q).astype('float64')
+        q *= 0.5 / sqrt(t)
+        return Quaternion(q[0], Point(q[1], q[2], q[3]))
 
     def __str__(self):
         return "W:{w:.2f}\nX:{x:.2f}\nY:{y:.2f}\nZ:{z:.2f}".format(w=self.w, x=self.x, y=self.y, z=self.z)

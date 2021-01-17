@@ -23,7 +23,7 @@ class Transformation():
         )
 
     def rotate(self, point: Point):
-        return point.rotate(self.rotation)
+        return self.quaternion.transform_point(point) #point.rotate(self.rotation)
 
     def translate(self, point: Point):
         return point + self.translation
@@ -32,4 +32,4 @@ class Transformation():
         return self.rotate(self.translate(point))
 
     def quat(self, quat: Quaternion):
-        return quat * self.quaternion
+        return self.quaternion * quat
