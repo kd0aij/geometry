@@ -9,7 +9,8 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from math import pi, cos, sin, sqrt, acos
+from math import pi, sqrt, acos
+import numpy as np
 from typing import List
 from numbers import Number
 from typing import List, Union, Dict
@@ -138,11 +139,11 @@ class Point(object):
 
     @property
     def cosines(self):
-        return Point(x=cos(self.x), y=cos(self.y), z=cos(self.z))
+        return Point(x=np.cos(self.x), y=np.cos(self.y), z=np.cos(self.z))
 
     @property
     def sines(self):
-        return Point(x=sin(self.x), y=sin(self.y), z=sin(self.z))
+        return Point(x=np.sin(self.x), y=np.sin(self.y), z=np.sin(self.z))
 
     def rotate(self, rotation_matrix=List[List[float]]):
         return Point(

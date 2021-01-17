@@ -8,8 +8,11 @@ class Transformation():
         self.coord_b = coord_b
 
         self.translation = self.coord_b.origin - self.coord_a.origin
+
         self.rotation = np.dot(
             self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
+
+        self.quaternion = Quaternion.from_rotation_matrix(self.rotation)
 
         self.pos_vec = np.vectorize(
             lambda *args: self.point(Point(*args)).to_tuple())
@@ -29,4 +32,4 @@ class Transformation():
         return self.rotate(self.translate(point))
 
     def quat(self, quat: Quaternion):
-        return Quaternion(quat.w, self.rotate(quat.axis))
+        return quat * self.quaternion

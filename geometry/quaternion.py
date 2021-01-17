@@ -55,22 +55,32 @@ class Quaternion():
 
     def transform_point(self, point: Point):
         '''Transform a point by the rotation described by self'''
-        return self * Quaternion(0, point) * self.inverse()
+        return (self * Quaternion(0, point) * self.inverse()).axis
 
     @staticmethod
     def from_euler(eul: Point):
+        '''    def euler_to_quaternion(yaw, pitch, roll):
+
+                    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+                    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+                    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+                    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+
+                    return [qx, qy, qz, qw]
+        '''
+
         half = eul * 0.5
         c = half.cosines
         s = half.sines
         return Quaternion(
-            w=c.y * c.z * c.x - s.y * s.z * s.x,
+            w=c.y * c.z * c.x + s.y * s.z * s.x,
             axis=Point(
-                x=s.y * s.z * c.x + c.y * c.z * s.x,
+                x=c.y * c.z * s.x - s.y * s.z * c.x,
                 y=s.y * c.z * c.x + c.y * s.z * s.x,
                 z=c.y * s.z * c.x - s.y * c.z * s.x
             )
         )
-
+            
     def to_euler(self):
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),

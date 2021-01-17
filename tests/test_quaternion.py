@@ -30,7 +30,7 @@ class TestQuaternion(unittest.TestCase):
         epoint = point.rotate(eul.to_rotation_matrix())
 
         qpoint = quat.transform_point(point)
-
+        self.assertIsInstance(qpoint,Point)
         self.assertAlmostEqual(epoint.x, qpoint.x)
         self.assertAlmostEqual(epoint.y, qpoint.y)
         self.assertAlmostEqual(epoint.z, qpoint.z)
