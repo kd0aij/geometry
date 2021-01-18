@@ -108,9 +108,9 @@ class Point(object):
 
     def __truediv__(self, other):
         if isinstance(other, Point):
-            return Point(x=self.x / other.x, y=self.y / other.y, z=self.z / other.z)
+            return Point(self.x / other.x, self.y / other.y, self.z / other.z)
         elif isinstance(other, Number):
-            return Point(x=self.x / other, y=self.y / other, z=self.z / other)
+            return Point(self.x / other, self.y / other, self.z / other)
         else:
             raise NotImplementedError
 
