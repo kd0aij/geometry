@@ -6,81 +6,81 @@ import numpy as np
 
 
 class Quaternion():
-    def __init__(self, w, axis: Point):
-
+    def __init__(self, w: float, x: float, y: float, z: float):
         self.w = w
-        self.axis = axis
+        self.x = x
+        self.y = y
+        self.z = z
 
-    @property
-    def x(self):
-        return self.axis.x
-
-    @property
-    def y(self):
-        return self.axis.y
-
-    @property
-    def z(self):
-        return self.axis.z
-
-    @staticmethod
-    def from_tuple(w, x, y, z):
-        return Quaternion(w, Point(x,y,z))
+    def __iter__(self):
+        for i in [self.w, self.x, self.y, self.z]:
+            yield i
 
     def to_tuple(self):
+        """This can be deprecated, instead use tuple()"""
         return(self.w, self.x, self.y, self.z)
 
     def to_list(self):
+        """This can be deprecated, instead use list()"""
         return [self.w, self.x, self.y, self.z]
+
+    def __dict__(self):
+        return {'w': self.w, 'x': self.x, 'y': self.y, 'z': self.z}
+
+    def to_dict(self, prefix=''):
+        return {prefix + key: value for key, value in dict(self)}
 
     def __abs__(self):
         return sqrt(self.x**2 + self.y**2 + self.z**2 + self.w**2)
 
+    @property
+    def axis(self):
+        return Point(self.x, self.y, self.z)
+
     def norm(self):
-        ab = abs(self)
-        return Quaternion(self.w / ab, self.axis / ab)
+        dab = 1 / abs(self)
+        return self * dab
 
     def conjugate(self):
-        return Quaternion(self.w, - self.axis)
+        return Quaternion(self.w, -self.x, -self.y, -self.z)
 
     def inverse(self):
         return self.conjugate().norm()
 
     def __mul__(self, other):
-        return Quaternion(
-            self.w * other.w - dot_product(self.axis, other.axis),
-            self.w * other.axis + other.w * self.axis +
-            cross_product(self.axis, other.axis)
-        )
+        if isinstance(other, Quaternion):
+            return Quaternion(
+                *tuple(
+                    [self.w * other.w - dot_product(self.axis, other.axis)] +
+                    list(
+                        self.w * other.axis +
+                        other.w * self.axis +
+                        cross_product(self.axis, other.axis)
+                    )))
+        elif isinstance(other, float):
+            return Quaternion(
+                other * self.w,
+                other * self.x,
+                other * self.y,
+                other * self.z
+            )
 
     def transform_point(self, point: Point):
         '''Transform a point by the rotation described by self'''
-        return (self * Quaternion(0, point) * self.inverse()).axis
+        return (self * Quaternion(*[0] + list(point)) * self.inverse()).axis
 
     @staticmethod
     def from_euler(eul: Point):
-        '''    def euler_to_quaternion(yaw, pitch, roll):
-
-                    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-                    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-                    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-                    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-
-                    return [qx, qy, qz, qw]
-        '''
-
         half = eul * 0.5
         c = half.cosines
         s = half.sines
         return Quaternion(
             w=c.y * c.z * c.x + s.y * s.z * s.x,
-            axis=Point(
-                x=c.y * c.z * s.x - s.y * s.z * c.x,
-                y=s.y * c.z * c.x + c.y * s.z * s.x,
-                z=c.y * s.z * c.x - s.y * c.z * s.x
-            )
+            x=c.y * c.z * s.x - s.y * s.z * c.x,
+            y=s.y * c.z * c.x + c.y * s.z * s.x,
+            z=c.y * s.z * c.x - s.y * c.z * s.x
         )
-            
+
     def to_euler(self):
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),
@@ -112,10 +112,11 @@ class Quaternion():
             [2 * x * y + 2 * s * z, 1 - 2 * (x2 + z2), -2 * s * x + 2 * y * z],
             [-2 * s * y + 2 * x * z, 2 * s * x + 2 * y * z, 1 - 2 * (x2 + y2)]
         ]
-        
+
     @staticmethod
     def from_rotation_matrix(matrix: np.ndarray):
-        m = matrix.conj().transpose() # This method assumes row-vector and postmultiplication of that vector
+        # This method assumes row-vector and postmultiplication of that vector
+        m = matrix.conj().transpose()
         if m[2, 2] < 0:
             if m[0, 0] > m[1, 1]:
                 t = 1 + m[0, 0] - m[1, 1] - m[2, 2]
@@ -133,20 +134,16 @@ class Quaternion():
 
         q = np.array(q).astype('float64')
         q *= 0.5 / sqrt(t)
-        return Quaternion(q[0], Point(q[1], q[2], q[3]))
+        return Quaternion(*q)
 
     def __str__(self):
         return "W:{w:.2f}\nX:{x:.2f}\nY:{y:.2f}\nZ:{z:.2f}".format(w=self.w, x=self.x, y=self.y, z=self.z)
-
-    def to_dict(self, prefix=''):
-        return dict({prefix + 'w': self.w}, **self.axis.to_dict(prefix))
-
-    def rotate(self, rotation_matrix=List[List[float]]):
-        return Quaternion(self.w, self.axis.rotate(rotation_matrix))
 
     @staticmethod
     def from_dict(value: Dict):
         return Quaternion(
             value['w'],
-            Point.from_dict(value)
+            value['x'],
+            value['y'],
+            value['z']
         )

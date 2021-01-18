@@ -22,18 +22,23 @@ class Point(object):
         self.y = y
         self.z = z
 
+    def __iter__(self):
+        for i in [self.x, self.y, self.z]:
+            yield i
+
     def to_list(self):
+        """can be deprecated, instead use list()"""
         return [self.x, self.y, self.z]
 
     def to_tuple(self):
+        """can be deprecated, instead use tuple()"""
         return(self.x, self.y, self.z)
 
+    def __dict__(self):
+        return {'x': self.x, 'y': self.y, 'z': self.z}
+
     def to_dict(self, prefix=''):
-        return {
-            prefix + 'x': self.x,
-            prefix + 'y': self.y,
-            prefix + 'z': self.z
-        }
+        return {prefix + key: value for key, value in dict(self)}
 
     @staticmethod
     def from_dict(value: Dict):

@@ -51,3 +51,9 @@ class TestQuaternion(unittest.TestCase):
             for i in range(0, 3):
                 for j in range(0, 3):
                     self.assertAlmostEqual(rmat[i][j], rmat2[i][j])
+
+    def test_iter(self):
+        quat = Quaternion(1, 2, 3, 4)
+        self.assertEqual(tuple(quat), (1, 2, 3, 4))
+        self.assertEqual(list(quat), [1, 2, 3, 4])
+

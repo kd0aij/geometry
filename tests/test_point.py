@@ -3,7 +3,7 @@ import unittest
 from math import pi
 
 
-class TestGeometry(unittest.TestCase):
+class TestPoint(unittest.TestCase):
     def setUp(self):
         self.p0 = Point(x=0, y=0, z=0)
         self.px = Point(x=1, y=0, z=0)
