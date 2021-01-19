@@ -3,27 +3,31 @@ import numpy as np
 
 
 class Transformation():
-    def __init__(self, coord_a: Coord, coord_b: Coord):
-        self.coord_a = coord_a
-        self.coord_b = coord_b
-
-        self.translation = self.coord_b.origin - self.coord_a.origin
-
-        self.rotation = np.dot(
-            self.coord_b.inverse_rotation_matrix, self.coord_a.rotation_matrix)
-
-        self.quaternion = Quaternion.from_rotation_matrix(self.rotation)
+    def __init__(self, translation: Point, rotation: Quaternion):
+        self.translation = translation
+        self.rotation = rotation
 
         self.pos_vec = np.vectorize(
-            lambda *args: self.point(Point(*args)).to_tuple())
+            lambda *args: tuple(self.point(Point(*args))))
 
         self.eul_vec = np.vectorize(
-            lambda *args: self.quat(
-                Quaternion.from_euler(Point(*args))).to_tuple()
+            lambda *args: tuple(self.quat(
+                Quaternion.from_euler(Point(*args)))
+        ))
+
+    @staticmethod
+    def from_coords(coord_a: Coord, coord_b: Coord):
+        return Transformation(
+            coord_b.origin - coord_a.origin,
+            Quaternion.from_rotation_matrix(
+                np.dot(
+                    coord_b.inverse_rotation_matrix,
+                    coord_a.rotation_matrix
+                ))
         )
 
     def rotate(self, point: Point):
-        return self.quaternion.transform_point(point) #point.rotate(self.rotation)
+        return self.rotation.transform_point(point)
 
     def translate(self, point: Point):
         return point + self.translation
@@ -32,4 +36,4 @@ class Transformation():
         return self.rotate(self.translate(point))
 
     def quat(self, quat: Quaternion):
-        return self.quaternion * quat
+        return self.rotation * quat
