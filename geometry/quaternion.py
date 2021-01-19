@@ -81,6 +81,35 @@ class Quaternion():
             z=c.y * s.z * c.x - s.y * c.z * s.x
         )
 
+    @staticmethod
+    def axis_rates(q, qdot):
+        wdash = qdot * q.conjugate()
+        return wdash.norm().axis * 2 
+    
+    @staticmethod
+    def body_axis_rates(q, qdot):
+        wdash = q.conjugate() * qdot
+        return wdash.norm().axis * 2
+
+    def rotate(self, rate: Point):
+        ab = abs(rate)
+        half = ab * 0.5
+        s = np.sin(half)
+        c = np.cos(half)
+        q = Quaternion( ab * c, rate.x * s, rate.y * s, rate.z * s )
+
+        return (q * self).norm()
+
+    def body_rotate(self, rate: Point):
+        ab = abs(rate)
+        half = ab * 0.5
+        s = np.sin(half)
+        c = np.cos(half)
+        q = Quaternion( ab * c, rate.x * s, rate.y * s, rate.z * s )
+
+        return (self * q).norm()
+
+
     def to_euler(self):
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),

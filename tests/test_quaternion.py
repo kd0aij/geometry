@@ -30,18 +30,18 @@ class TestQuaternion(unittest.TestCase):
         epoint = point.rotate(eul.to_rotation_matrix())
 
         qpoint = quat.transform_point(point)
-        self.assertIsInstance(qpoint,Point)
+        self.assertIsInstance(qpoint, Point)
         self.assertAlmostEqual(epoint.x, qpoint.x)
         self.assertAlmostEqual(epoint.y, qpoint.y)
         self.assertAlmostEqual(epoint.z, qpoint.z)
 
     def test_from_rotation_matrix(self):
-        
+
         rmats = [
-            [[1,0,0],[0,1,0],[0,0,1]],
-            Point(1,1,0).to_rotation_matrix(),
+            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            Point(1, 1, 0).to_rotation_matrix(),
             Point(0.7, -1.2, 1).to_rotation_matrix()
-            ]
+        ]
 
         for rmat in rmats:
             quat = Quaternion.from_rotation_matrix(np.array(rmat))
@@ -57,3 +57,42 @@ class TestQuaternion(unittest.TestCase):
         self.assertEqual(tuple(quat), (1, 2, 3, 4))
         self.assertEqual(list(quat), [1, 2, 3, 4])
 
+    def test_axis_rates(self):
+        q= Quaternion.from_euler(Point(0, 0, np.pi/2))
+        qdot=Quaternion.from_euler(Point(np.radians(5), 0, np.pi/2))
+        
+        rates = Quaternion.axis_rates(q, qdot)
+        self.assertAlmostEqual(np.degrees(rates.x), 0, 2)
+        self.assertAlmostEqual(np.degrees(rates.y), 5, 2)
+        self.assertAlmostEqual(np.degrees(rates.z), 0, 2)
+        # TODO I think we should get better precision than this...
+        
+    def test_body_axis_rates(self):
+        q=Quaternion.from_euler(Point(0, 0, np.pi/2))
+        qdot=Quaternion.from_euler(Point(np.radians(5), 0, np.pi/2))
+        
+        rates = Quaternion.body_axis_rates(q, qdot)
+        self.assertAlmostEqual(np.degrees(rates.x), 5, 2)
+        self.assertAlmostEqual(np.degrees(rates.y), 0, 2)
+        self.assertAlmostEqual(np.degrees(rates.z), 0, 2)
+
+    def test_eaxisrates(self):
+        r = np.array(Point(np.pi/2, 0, 0).to_rotation_matrix())
+        rdot = np.array(Point(np.pi/2 + np.radians(5),
+                              0, 0).to_rotation_matrix())
+
+        a = np.dot(rdot, r.T)
+        self.assertAlmostEqual(a[0, 1], 0)
+        self.assertAlmostEqual(a[0, 2], 0)
+        self.assertAlmostEqual(np.degrees(a[1, 2]), -5, 1)
+
+    def test_rotate(self):
+        q = Quaternion.from_euler(Point(0,0,0))
+        qdot = q.rotate(Point(0,0,np.radians(5)))
+        self.assertAlmostEqual(qdot.transform_point(Point(1,0,0)).y, np.sin(np.radians(5)))
+
+    def test_body_rotate(self):
+        q = Quaternion.from_euler(Point(0,0,np.pi/2))
+        qdot = q.body_rotate(Point(np.radians(5),0,0))
+
+        self.assertAlmostEqual(qdot.transform_point(Point(0,1,0)).z, np.sin(np.radians(5)))
