@@ -82,32 +82,37 @@ class Quaternion():
         )
 
     @staticmethod
+    def from_axis_angle(angles: Point, factor: float=1):
+        ab = abs(angles)
+        fact = ab * factor
+        s = np.sin(fact)
+        c = np.cos(fact)
+        return Quaternion( ab * c, angles.x * s, angles.y * s, angles.z * s )
+
+    def to_axis_angle(self):
+        """to a point of axis angles. must be normalized first."""
+        angle = np.arccos(self.w)
+        s = np.sqrt(1-self.w**2)
+        if (s==0):
+            return self.axis * angle
+        else:
+            return self.axis * angle / s
+
+    @staticmethod
     def axis_rates(q, qdot):
         wdash = qdot * q.conjugate()
-        return wdash.norm().axis * 2 
+        return wdash.norm().to_axis_angle() * 2 
     
     @staticmethod
     def body_axis_rates(q, qdot):
         wdash = q.conjugate() * qdot
-        return wdash.norm().axis * 2
+        return wdash.norm().to_axis_angle() * 2
 
     def rotate(self, rate: Point):
-        ab = abs(rate)
-        half = ab * 0.5
-        s = np.sin(half)
-        c = np.cos(half)
-        q = Quaternion( ab * c, rate.x * s, rate.y * s, rate.z * s )
-
-        return (q * self).norm()
+        return (Quaternion.from_axis_angle(rate, 0.5) * self).norm()
 
     def body_rotate(self, rate: Point):
-        ab = abs(rate)
-        half = ab * 0.5
-        s = np.sin(half)
-        c = np.cos(half)
-        q = Quaternion( ab * c, rate.x * s, rate.y * s, rate.z * s )
-
-        return (self * q).norm()
+        return (self * Quaternion.from_axis_angle(rate, 0.5)).norm()
 
 
     def to_euler(self):

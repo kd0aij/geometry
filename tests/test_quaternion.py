@@ -62,9 +62,9 @@ class TestQuaternion(unittest.TestCase):
         qdot=Quaternion.from_euler(Point(np.radians(5), 0, np.pi/2))
         
         rates = Quaternion.axis_rates(q, qdot)
-        self.assertAlmostEqual(np.degrees(rates.x), 0, 2)
-        self.assertAlmostEqual(np.degrees(rates.y), 5, 2)
-        self.assertAlmostEqual(np.degrees(rates.z), 0, 2)
+        self.assertAlmostEqual(np.degrees(rates.x), 0)
+        self.assertAlmostEqual(np.degrees(rates.y), 5)
+        self.assertAlmostEqual(np.degrees(rates.z), 0)
         # TODO I think we should get better precision than this...
         
     def test_body_axis_rates(self):
@@ -72,9 +72,9 @@ class TestQuaternion(unittest.TestCase):
         qdot=Quaternion.from_euler(Point(np.radians(5), 0, np.pi/2))
         
         rates = Quaternion.body_axis_rates(q, qdot)
-        self.assertAlmostEqual(np.degrees(rates.x), 5, 2)
-        self.assertAlmostEqual(np.degrees(rates.y), 0, 2)
-        self.assertAlmostEqual(np.degrees(rates.z), 0, 2)
+        self.assertAlmostEqual(np.degrees(rates.x), 5)
+        self.assertAlmostEqual(np.degrees(rates.y), 0)
+        self.assertAlmostEqual(np.degrees(rates.z), 0)
 
     def test_eaxisrates(self):
         r = np.array(Point(np.pi/2, 0, 0).to_rotation_matrix())
