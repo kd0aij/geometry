@@ -7,14 +7,6 @@ class Transformation():
         self.translation = translation
         self.rotation = rotation
 
-        self.pos_vec = np.vectorize(
-            lambda *args: tuple(self.point(Point(*args))))
-
-        self.eul_vec = np.vectorize(
-            lambda *args: tuple(self.quat(
-                Quaternion.from_euler(Point(*args)))
-        ))
-
     @staticmethod
     def from_coords(coord_a: Coord, coord_b: Coord):
         return Transformation(
