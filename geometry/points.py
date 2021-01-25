@@ -1,6 +1,7 @@
 from geometry.point import Point
 import re
 import numpy as np
+import pandas as pd
 from numbers import Number
 
 
@@ -12,6 +13,13 @@ class Points(object):
             data (np.array): npoint * 3 array of point locations
         """
         self.data = data
+
+    @staticmethod
+    def from_pandas(df):
+        return Points(np.array(df))
+
+    def to_pandas(self, prefix='', suffix='', columns=['x', 'y', 'z']):
+        return pd.DataFrame(self.data, columns=[prefix + col + suffix for col in columns])
 
     @property
     def x(self):
@@ -36,7 +44,34 @@ class Points(object):
         if isinstance(other, Points):
             return Points(self.data + other.data)
         elif isinstance(other, Point):
-            return Points(self.data + list(other))
+            return Points(self.data + Points.from_point(other, self.count).data)
+        else:
+            return NotImplemented
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        if isinstance(other, Points):
+            return Points(self.data - other.data)
+        elif isinstance(other, Point):
+            return Points(self.data - Points.from_point(other, self.count).data)
+        else:
+            return NotImplemented
+
+    def __rsub__(self, other):
+        if isinstance(other, Point):
+            return Points(Points.from_point(other, self.count).data - self.data)
+        else:
+            return NotImplemented
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+
+    @staticmethod
+    def from_point(point, count):
+        return Points(np.tile(list(point), (count, 1)))
 
     def __mul__(self, other):
         if isinstance(other, Points):

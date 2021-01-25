@@ -20,7 +20,14 @@ class Transformation():
         )
 
     def rotate(self, point: Union[Point, Points]):
-        return self.rotation.transform_point(point)
+        if isinstance(point, Point):
+            return self.rotation.transform_point(point)
+        elif isinstance(point, Points):
+            return Quaternions.from_quaternion(self.rotation, point.count).transform_point(point)
+        else:
+            return NotImplemented
+            
+        
 
     def translate(self, point: Union[Point, Points]):
         return point + self.translation

@@ -70,14 +70,7 @@ class Quaternion():
     def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
         if isinstance(point, Points):
-            qs = np.column_stack(
-                [np.zeros((point.count, 1)),
-                point.data]
-            )
-            selfs = np.tile(list(self), (point.count, 1))
-
-            return (selfs * qs * selfs.inverse()).axis
-
+            return NotImplemented
         elif isinstance(point, Point):
             return (self * Quaternion(*[0] + list(point)) * self.inverse()).axis
         else:

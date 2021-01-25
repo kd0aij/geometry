@@ -65,7 +65,7 @@ class Point(object):
                 z=self.z + other
             )
         else:
-            return NotImplementedError
+            return NotImplemented
 
     def __sub__(self, other):
         if isinstance(other, Point):

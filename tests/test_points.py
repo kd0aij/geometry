@@ -55,6 +55,15 @@ class TestPoints(unittest.TestCase):
             )(*pnts.data.T)).T
         )
 
+        np.testing.assert_array_equal(
+            (Point(1, 1, 1) + pnts).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(1, 1, 1) + Point(*args))
+            )(*pnts.data.T)).T
+        )
+
+
+
     def test_mul_points_points(self):
         def sqr(*args):
             return Point(*args) * Point(*args)
@@ -150,3 +159,18 @@ class TestPoints(unittest.TestCase):
                 lambda *args: tuple(cross_product(Point(*args), Point(*args)))
             )(*self.points.T)).T
         )
+
+    def test_from_pandas(self):
+        arr = np.random.random((100,3))
+        df = pd.DataFrame(arr, columns=list('xyz'))
+        pnts = Points.from_pandas(df)
+        np.testing.assert_array_equal(arr, pnts.data)
+
+
+    def test_to_pandas(self):
+        pnts = Points(np.random.random((100,3)))
+        df = pnts.to_pandas('a', 'b')
+        np.testing.assert_array_equal(df.columns, ['axb', 'ayb', 'azb'])
+
+
+

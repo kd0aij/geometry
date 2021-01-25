@@ -1,9 +1,10 @@
+from typing import Union
 from geometry.quaternion import Quaternion
 from numbers import Number
-from geometry.points import Points
+from geometry import Point, Points
 
 import numpy as np
-
+import pandas as pd
 
 class Quaternions():
     def __init__(self, data):
@@ -25,6 +26,13 @@ class Quaternions():
     @property
     def z(self):
         return self.data[:, 3]
+
+    @staticmethod
+    def from_pandas(df):
+        return Quaternions(np.array(df))
+
+    def to_pandas(self, prefix='', suffix='', columns=['w', 'x', 'y', 'z']):
+        return pd.DataFrame(self.data, columns=[prefix + col + suffix for col in columns])
 
     def __abs__(self):
         return np.sqrt(self.w**2 + self.x**2 + self.y**2 + self.z**2)
@@ -107,12 +115,21 @@ class Quaternions():
         )
 
 
-    def transform_point(self, point):
+    def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
-        qdata = np.tile([0] + list(point), (self.count, 1))
+        if isinstance(point, Point):
+            qdata = np.tile([0] + list(point), (self.count, 1))
 
-        return (self * Quaternions(qdata) * self.inverse()).axis
+            return (self * Quaternions(qdata) * self.inverse()).axis
+        elif isinstance(point, Points):
+            if point.count == self.count:
 
+                qdata = np.column_stack((np.zeros(self.count), point.data ))
+
+                return (self * Quaternions(qdata) * self.inverse()).axis
+            return NotImplemented
+        else:
+            return NotImplemented
 
     @staticmethod
     def from_axis_angle(angles: Points, factor: float=1):
