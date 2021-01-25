@@ -33,8 +33,11 @@ class Points(object):
         return np.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def __add__(self, other):
-        return Points(self.data + other.data)
-    
+        if isinstance(other, Points):
+            return Points(self.data + other.data)
+        elif isinstance(other, Point):
+            return Points(self.data + list(other))
+
     def __mul__(self, other):
         if isinstance(other, Points):
             return Points(self.data * other.data)
@@ -43,11 +46,15 @@ class Points(object):
                 if len(other) == self.count:
                     return Points(self.data * other[:, np.newaxis])
                 else:
-                    raise NotImplementedError
+                    raise NotImplementedError("this will return an unexpected result")
             else:
-                raise NotImplementedError
+                return NotImplemented
         elif isinstance(other, Number):
             return Points(self.data * other)
+        elif isinstance(other, Point):
+            return Points(self.data * list(other))
+        else:
+            return NotImplemented
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -60,9 +67,9 @@ class Points(object):
                 if len(other) == self.count:
                     return Points(self.data / other[:, np.newaxis])
                 else:
-                    raise NotImplementedError
+                    return NotImplemented
             else:
-                raise NotImplementedError
+                return NotImplemented
         elif isinstance(other, Number):
             return Points(self.data / other)
 
@@ -73,7 +80,7 @@ class Points(object):
         if isinstance(value, Number):
             return (value / abs(self)) * self
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def unit(self):
         return self.scale(1)

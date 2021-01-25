@@ -1,3 +1,4 @@
+from geometry.quaternion import Quaternion
 from numbers import Number
 from geometry.points import Points
 
@@ -51,7 +52,7 @@ class Quaternions():
         if isinstance(other, Quaternions):
             pass
             if not self.count == other.count:
-                raise NotImplementedError
+                return NotImplemented
             else:
                 w = self.w * other.w - self.axis.dot(other.axis)
 #               
@@ -67,20 +68,27 @@ class Quaternions():
                 if len(other) == self.count:
                     return Quaternions(self.data * other[:, np.newaxis])
                 else:
-                    raise NotImplementedError
+                    return NotImplemented
             else:
-                raise NotImplementedError
+                return NotImplemented
+        elif isinstance(other, Quaternion):
+            return self * Quaternions.from_quaternion(other, self.count)
         else:
-            raise NotImplementedError
-    
+            return NotImplemented
+
     def __rmul__(self, other):
         if isinstance(other, Quaternions):
-            raise NotImplementedError('this should have gone to __mul__')
+            return NotImplemented('this should have gone to __mul__')
         elif isinstance(other, float):
             return Quaternions(self.data * other)
+        elif isinstance(other, Quaternion):
+            return Quaternions.from_quaternion(other, self.count) * self
         else:
-            raise NotImplementedError
+            return NotImplemented
 
+    @staticmethod
+    def from_quaternion(quat: Quaternion, count: int):
+        return Quaternions(np.tile(list(quat),(count,1)))
 
     @staticmethod
     def from_euler(eul: Points):

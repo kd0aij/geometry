@@ -1,7 +1,7 @@
 
-from . import Point, dot_product, cross_product
+from . import Point, dot_product, cross_product, Points
 from math import atan2, asin, copysign, pi, sqrt
-from typing import List, Dict
+from typing import List, Dict, Union
 import numpy as np
 
 
@@ -64,10 +64,24 @@ class Quaternion():
                 other * self.y,
                 other * self.z
             )
+        else:
+            return NotImplemented
 
-    def transform_point(self, point: Point):
+    def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
-        return (self * Quaternion(*[0] + list(point)) * self.inverse()).axis
+        if isinstance(point, Points):
+            qs = np.column_stack(
+                [np.zeros((point.count, 1)),
+                point.data]
+            )
+            selfs = np.tile(list(self), (point.count, 1))
+
+            return (selfs * qs * selfs.inverse()).axis
+
+        elif isinstance(point, Point):
+            return (self * Quaternion(*[0] + list(point)) * self.inverse()).axis
+        else:
+            return NotImplemented
 
     @staticmethod
     def from_euler(eul: Point):

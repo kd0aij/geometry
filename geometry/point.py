@@ -98,13 +98,13 @@ class Point(object):
         elif isinstance(other, Number):
             return Point(x=other * self.x, y=other * self.y, z=other * self.z)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __rmul__(self, other):
         if isinstance(other, Point) or isinstance(other, Number):
             return self.__mul__(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __truediv__(self, other):
         if isinstance(other, Point):
@@ -112,19 +112,19 @@ class Point(object):
         elif isinstance(other, Number):
             return Point(self.x / other, self.y / other, self.z / other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, Point):
             return abs(self) < abs(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __gt__(self, other):
         if isinstance(other, Point):
             return abs(self) > abs(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __neg__(self):
         return -1 * self

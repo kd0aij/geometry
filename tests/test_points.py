@@ -39,16 +39,20 @@ class TestPoints(unittest.TestCase):
 
     def test_add(self):
 
-        def dbl(*args):
-            return Point(*args) + Point(*args)
+        pnts = Points(np.random.random((100, 3)))
 
-        self.assertCountEqual(
-            (self.pnts + self.pnts).x,
-            np.vectorize(lambda *args: dbl(*args).x)(*self.points.T)
+        np.testing.assert_array_equal(
+            (pnts + pnts).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(*args) + Point(*args))
+            )(*pnts.data.T)).T
         )
-        self.assertCountEqual(
-            (self.pnts + self.pnts).y,
-            np.vectorize(lambda *args: dbl(*args).y)(*self.points.T)
+
+        np.testing.assert_array_equal(
+            (pnts + Point(1, 1, 1)).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(*args) + Point(1, 1, 1))
+            )(*pnts.data.T)).T
         )
 
     def test_mul_points_points(self):
@@ -74,20 +78,23 @@ class TestPoints(unittest.TestCase):
         )
 
     def test_mul_points_array(self):
-        mults = np.random.random(4)
+        pnts = Points(np.random.random((100,3)))
+        mults = np.random.random(100)
 
         def mul(*args):
-            return Point(*args[:3]) * args[3]
+            return tuple(Point(*args[:3]) * args[3])
 
-        self.assertCountEqual(
-            (mults * self.pnts).x,
-            np.vectorize(lambda *args: mul(*args).x)(
-                *np.column_stack([self.points, mults]).T
-            )
+        np.testing.assert_array_equal(
+            (mults * pnts).data,
+            np.array(np.vectorize(
+                lambda *args: mul(*args))(*np.column_stack([pnts.data, mults]).T
+            )).T
         )
-
         with self.assertRaises(NotImplementedError):
-            self.pnts * np.random.random(5)
+            np.testing.assert_equal(
+                self.pnts * np.random.random(5),
+                NotImplemented
+            )
 
     def test_neg(self):
         self.assertCountEqual(
@@ -128,7 +135,6 @@ class TestPoints(unittest.TestCase):
                 lambda *args: tuple(Point(*args).cosines)
             )(*self.points.T)).T
         )
-
 
     def test_dot(self):
         self.assertCountEqual(

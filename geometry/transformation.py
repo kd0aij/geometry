@@ -1,6 +1,7 @@
-from . import Point, Quaternion, Coord
-import numpy as np
+from . import Point, Quaternion, Coord, Points, Quaternions
 
+import numpy as np
+from typing import Union
 
 class Transformation():
     def __init__(self, translation: Point, rotation: Quaternion):
@@ -18,14 +19,14 @@ class Transformation():
                 ))
         )
 
-    def rotate(self, point: Point):
+    def rotate(self, point: Union[Point, Points]):
         return self.rotation.transform_point(point)
 
-    def translate(self, point: Point):
+    def translate(self, point: Union[Point, Points]):
         return point + self.translation
 
-    def point(self, point: Point):
+    def point(self, point: Union[Point, Points]):
         return self.rotate(self.translate(point))
 
-    def quat(self, quat: Quaternion):
+    def quat(self, quat: Union[Quaternion, Quaternions]):
         return self.rotation * quat

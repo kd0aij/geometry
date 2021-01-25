@@ -46,13 +46,41 @@ class TestQuaternions(unittest.TestCase):
         )
 
     def test_mul(self):
-        def sqr(*args):
-            return Quaternion(*args) * Quaternion(*args)
+        q1 = Quaternions(np.random.random((100, 4))).norm()
+        q2 = Quaternions(np.random.random((100, 4))).norm()
 
-        self.assertCountEqual(
-            (self.qs * self.qs).w,
-            np.vectorize(lambda *args: sqr(*args).w)(*self.qs.data.T)
+        #Quaternions * Quaternions
+        np.testing.assert_array_almost_equal(
+            (q1 * q2).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(
+                    Quaternion(*args[0:4]) * Quaternion(*args[4:8])
+                )
+            )(*np.column_stack([q1.data, q2.data]).T)).T,
+            err_msg="failed to do Quaternions * Quaternions"
         )
+
+        np.testing.assert_array_almost_equal(
+            (q1 * Quaternion(1,2,3,4).norm()).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(
+                    Quaternion(*args[0:4]) * Quaternion(1,2,3,4).norm()
+                )
+            )(*q1.data.T)).T,
+            err_msg="failed to do Quaternions * Quaternion"
+        )
+
+        np.testing.assert_array_almost_equal(
+            (Quaternion(1,2,3,4).norm() * q1).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(
+                    Quaternion(1,2,3,4).norm() * Quaternion(*args[0:4])
+                )
+            )(*q1.data.T)).T,
+            err_msg="failed to do Quaternion * Quaternions"
+        )
+
+
 
     def test_from_euler(self):
         points = Points(np.array([
@@ -78,7 +106,7 @@ class TestQuaternions(unittest.TestCase):
         )
 
     def test_from_axis_angle(self):
-        points = Points(np.random.random((100,3)))
+        points = Points(np.random.random((100, 3)))
 
         np.testing.assert_array_equal(
             Quaternions.from_axis_angle(points).data,
@@ -87,9 +115,8 @@ class TestQuaternions(unittest.TestCase):
             )(*points.data.T)).T
         )
 
-
     def test_to_axis_angle(self):
-        qs = Quaternions(np.random.random((100,4))).norm()
+        qs = Quaternions(np.random.random((100, 4))).norm()
 
         np.testing.assert_array_equal(
             qs.to_axis_angle().data,
