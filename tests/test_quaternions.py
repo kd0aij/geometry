@@ -2,6 +2,8 @@ import unittest
 from geometry.quaternions import Quaternions
 import numpy as np
 from geometry.quaternion import Quaternion
+from geometry.points import Points
+from geometry.point import Point
 
 
 class TestQuaternions(unittest.TestCase):
@@ -20,31 +22,27 @@ class TestQuaternions(unittest.TestCase):
         )
 
     def test_norm(self):
-        self.assertCountEqual(
-            self.qs.norm(),
-            np.vectorize(lambda *args: Quaternion(*args).norm())(*self.qs.data.T)
+        np.testing.assert_array_equal(
+            self.qs.norm().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion(*args).norm())
+            )(*self.qs.data.T)).T
         )
 
     def test_conjugate(self):
-        self.assertCountEqual(
-            self.qs.conjugate().x,
-            np.vectorize(lambda *args: Quaternion(*args).conjugate().x)(*self.qs.data.T)
+        np.testing.assert_array_equal(
+            self.qs.conjugate().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion(*args).conjugate())
+            )(*self.qs.data.T)).T
         )
 
-        self.assertCountEqual(
-            self.qs.conjugate().w,
-            np.vectorize(lambda *args: Quaternion(*args).conjugate().w)(*self.qs.data.T)
-        )
-    
     def test_inverse(self):
-        self.assertCountEqual(
-            self.qs.inverse().x,
-            np.vectorize(lambda *args: Quaternion(*args).inverse().x)(*self.qs.data.T)
-        )
-
-        self.assertCountEqual(
-            self.qs.inverse().w,
-            np.vectorize(lambda *args: Quaternion(*args).inverse().w)(*self.qs.data.T)
+        np.testing.assert_array_equal(
+            self.qs.inverse().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion(*args).inverse())
+            )(*self.qs.data.T)).T
         )
 
     def test_mul(self):
@@ -54,4 +52,48 @@ class TestQuaternions(unittest.TestCase):
         self.assertCountEqual(
             (self.qs * self.qs).w,
             np.vectorize(lambda *args: sqr(*args).w)(*self.qs.data.T)
+        )
+
+    def test_from_euler(self):
+        points = Points(np.array([
+            [0, 0, 0],
+            [0, 0, np.pi / 2],
+            [1, 1,  0]
+        ]))
+
+        np.testing.assert_array_equal(
+            Quaternions.from_euler(points).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion.from_euler(Point(*args)))
+            )(*points.data.T)).T
+        )
+
+    def test_transform_point(self):
+        np.testing.assert_array_equal(
+            self.qs.transform_point(Point(1, 1, 1)).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion(*
+                                               args).transform_point(Point(1, 1, 1)))
+            )(*self.qs.data.T)).T
+        )
+
+    def test_from_axis_angle(self):
+        points = Points(np.random.random((100,3)))
+
+        np.testing.assert_array_equal(
+            Quaternions.from_axis_angle(points).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion.from_axis_angle(Point(*args)))
+            )(*points.data.T)).T
+        )
+
+
+    def test_to_axis_angle(self):
+        qs = Quaternions(np.random.random((100,4))).norm()
+
+        np.testing.assert_array_equal(
+            qs.to_axis_angle().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Quaternion(*args).to_axis_angle())
+            )(*qs.data.T)).T
         )

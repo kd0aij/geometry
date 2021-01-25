@@ -5,7 +5,7 @@ from geometry.points import Points
 import numpy as np
 import pandas as pd
 
-from geometry import Point
+from geometry import Point, dot_product, cross_product
 
 
 class TestPoints(unittest.TestCase):
@@ -110,17 +110,37 @@ class TestPoints(unittest.TestCase):
     def test_scale_scalar(self):
         self.assertCountEqual(
             abs(self.pnts.scale(1)),
-            np.vectorize(lambda *args: abs(Point(*args).scale(1)))(*self.points.T)
+            np.vectorize(lambda *args: abs(Point(*args).scale(1))
+                         )(*self.points.T)
         )
 
     def test_trigs(self):
-        self.assertCountEqual(
-            self.pnts.sines().x,
-            np.vectorize(lambda *args: Point(*args).sines.x)(*self.points.T)
+        np.testing.assert_array_equal(
+            self.pnts.sines().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(*args).sines)
+            )(*self.points.T)).T
         )
-        self.assertCountEqual(
-            self.pnts.cosines().x,
-            np.vectorize(lambda *args: Point(*args).cosines.x)(*self.points.T)
+
+        np.testing.assert_array_equal(
+            self.pnts.cosines().data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(*args).cosines)
+            )(*self.points.T)).T
         )
-    
-    
+
+
+    def test_dot(self):
+        self.assertCountEqual(
+            self.pnts.dot(self.pnts),
+            np.vectorize(lambda *args: dot_product(Point(*args),
+                                                   Point(*args)))(*self.points.T)
+        )
+
+    def test_cross(self):
+        np.testing.assert_array_equal(
+            self.pnts.cross(self.pnts).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(cross_product(Point(*args), Point(*args)))
+            )(*self.points.T)).T
+        )

@@ -1,3 +1,4 @@
+from geometry.point import Point
 import re
 import numpy as np
 from numbers import Number
@@ -89,4 +90,8 @@ class Points(object):
     def asines(self):
         return Points(np.asin(self.data))
 
-    
+    def dot(self, other):
+        return np.einsum('ij,ij->i', self.data, other.data)
+
+    def cross(self, other):
+        return Points(np.cross(self.data, other.data))
