@@ -52,15 +52,5 @@ class TestTransformation(unittest.TestCase):
             )(*points.data.T)).T
         )
 
-
-    def test_pos_vec(self):
-        ptupe = (np.ones(3), np.ones(3), np.zeros(3))
-        transform = Transformation.from_coords(Coord.from_nothing(), Coord.from_zx(
-            Point(0, 0, 0), Point(0, 0, 1), Point(0, -1, 0)))
-        res = transform.pos_vec(*ptupe)
-        self.assertEqual(res[0][0], 1)
-        self.assertEqual(res[1][0], -1)
-        self.assertEqual(res[2][0], 0)
-
     def test_transform(self):
         pass
