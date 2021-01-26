@@ -62,8 +62,6 @@ class TestPoints(unittest.TestCase):
             )(*pnts.data.T)).T
         )
 
-
-
     def test_mul_points_points(self):
         def sqr(*args):
             return Point(*args) * Point(*args)
@@ -87,7 +85,7 @@ class TestPoints(unittest.TestCase):
         )
 
     def test_mul_points_array(self):
-        pnts = Points(np.random.random((100,3)))
+        pnts = Points(np.random.random((100, 3)))
         mults = np.random.random(100)
 
         def mul(*args):
@@ -97,7 +95,7 @@ class TestPoints(unittest.TestCase):
             (mults * pnts).data,
             np.array(np.vectorize(
                 lambda *args: mul(*args))(*np.column_stack([pnts.data, mults]).T
-            )).T
+                                          )).T
         )
         with self.assertRaises(NotImplementedError):
             np.testing.assert_equal(
@@ -118,7 +116,14 @@ class TestPoints(unittest.TestCase):
         )
 
     def test_truediv_array(self):
-        pass
+        pnts = Points(np.random.random((100, 3)))
+        denoms = np.random.random(100)
+        np.testing.assert_array_equal(
+            (pnts / denoms).data,
+            np.array(np.vectorize(
+                lambda *args: tuple(Point(*args[0:3]) / args[3])
+            )(*np.column_stack([pnts.data, denoms]).T)).T
+        )
 
     def test_truediv_points_points(self):
         pass
@@ -161,16 +166,12 @@ class TestPoints(unittest.TestCase):
         )
 
     def test_from_pandas(self):
-        arr = np.random.random((100,3))
+        arr = np.random.random((100, 3))
         df = pd.DataFrame(arr, columns=list('xyz'))
         pnts = Points.from_pandas(df)
         np.testing.assert_array_equal(arr, pnts.data)
 
-
     def test_to_pandas(self):
-        pnts = Points(np.random.random((100,3)))
+        pnts = Points(np.random.random((100, 3)))
         df = pnts.to_pandas('a', 'b')
         np.testing.assert_array_equal(df.columns, ['axb', 'ayb', 'azb'])
-
-
-
