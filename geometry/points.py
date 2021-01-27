@@ -137,3 +137,6 @@ class Points(object):
 
     def cross(self, other):
         return Points(np.cross(self.data, other.data))
+
+    def diff(self, dt:np.array):
+        return Points(np.gradient(self.data,axis=0) / np.tile(dt, (3,1)).T)

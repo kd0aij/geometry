@@ -11,10 +11,12 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from . import Point, cross_product
-from typing import List
+from typing import List, get_origin
 import numpy as np
+import pandas as pd
 
 # TODO look at scipy.spatial.transform.Rotation
+
 
 class Coord(object):
     __slots__ = ["origin", "x_axis", "y_axis", "z_axis",
@@ -25,6 +27,10 @@ class Coord(object):
         self.x_axis = x_axis.unit()
         self.y_axis = y_axis.unit()
         self.z_axis = z_axis.unit()
+
+    @property
+    def axes(self):
+        return [self.x_axis, self.y_axis, self.z_axis]
 
     @staticmethod
     def from_nothing():
@@ -75,3 +81,19 @@ class Coord(object):
     def translate(self, point):
         return Coord(self.origin + point, self.x_axis, self.y_axis, self.z_axis)
 
+    def get_plot_df(self, length=10):
+        def make_ax(ax: Point, colour: str):
+            return [
+                list(self.origin) + [colour],
+                list(self.origin + ax * length) + [colour],
+                list(self.origin) + [colour]
+            ]
+
+        axes = []
+        for ax, col in zip(self.axes, ['red', 'blue', 'green']):
+            axes += make_ax(ax, col)
+
+        return pd.DataFrame(
+            axes,
+            columns=list('xyzc')
+        )

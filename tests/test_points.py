@@ -175,3 +175,13 @@ class TestPoints(unittest.TestCase):
         pnts = Points(np.random.random((100, 3)))
         df = pnts.to_pandas('a', 'b')
         np.testing.assert_array_equal(df.columns, ['axb', 'ayb', 'azb'])
+
+    def test_diff(self):
+        rawd, step0 = np.linspace(0, 100, 100, retstep=True)
+        pins = Points(np.array([rawd, rawd * 2, rawd * -1]).T)
+        dt=0.5
+        vels = pins.diff(np.full(100, dt))
+        np.testing.assert_array_almost_equal(
+            vels.data, 
+            np.tile([step0 / dt, 2 * step0 / dt, -1 * step0 / dt], (100, 1))
+        )

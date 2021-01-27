@@ -6,6 +6,7 @@ from geometry import Point, Points
 import numpy as np
 import pandas as pd
 
+
 class Quaternions():
     def __init__(self, data):
         """Args: data (np.array): npoint * 4 array of point locations"""
@@ -63,7 +64,7 @@ class Quaternions():
                 return NotImplemented
             else:
                 w = self.w * other.w - self.axis.dot(other.axis)
-#               
+#
                 xyz = self.w * other.axis + other.w * self.axis + \
                     self.axis.cross(other.axis)
 
@@ -96,7 +97,7 @@ class Quaternions():
 
     @staticmethod
     def from_quaternion(quat: Quaternion, count: int):
-        return Quaternions(np.tile(list(quat),(count,1)))
+        return Quaternions(np.tile(list(quat), (count, 1)))
 
     @staticmethod
     def from_euler(eul: Points):
@@ -114,7 +115,6 @@ class Quaternions():
             ]).T
         )
 
-
     def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
         if isinstance(point, Point):
@@ -124,7 +124,7 @@ class Quaternions():
         elif isinstance(point, Points):
             if point.count == self.count:
 
-                qdata = np.column_stack((np.zeros(self.count), point.data ))
+                qdata = np.column_stack((np.zeros(self.count), point.data))
 
                 return (self * Quaternions(qdata) * self.inverse()).axis
             return NotImplemented
@@ -132,16 +132,15 @@ class Quaternions():
             return NotImplemented
 
     @staticmethod
-    def from_axis_angle(angles: Points, factor: float=1):
+    def from_axis_angle(angles: Points, factor: float = 1):
         ab = abs(angles)
         fact = ab * factor
         s = np.sin(fact)
         c = np.cos(fact)
 
-
-        return Quaternions( np.array([
+        return Quaternions(np.array([
             ab * c, angles.x * s, angles.y * s, angles.z * s
-        ]).T )
+        ]).T)
 
     def to_axis_angle(self):
         """to a point of axis angles. must be normalized first."""
@@ -152,8 +151,8 @@ class Quaternions():
     @staticmethod
     def axis_rates(q, qdot):
         wdash = qdot * q.conjugate()
-        return wdash.norm().to_axis_angle() * 2 
-   
+        return wdash.norm().to_axis_angle() * 2
+
     @staticmethod
     def body_axis_rates(q, qdot):
         wdash = q.conjugate() * qdot
@@ -165,3 +164,14 @@ class Quaternions():
     def body_rotate(self, rate: Points):
         return (self * Quaternions.from_axis_angle(rate, 0.5)).norm()
 
+    def diff(self, dt: np.array) -> Points:
+        return Quaternions.axis_rates(
+            self,
+            Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
+        ) / dt
+
+    def body_diff(self, dt: np.array) -> Points:
+        return Quaternions.body_axis_rates(
+            self,
+            Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
+        ) / dt

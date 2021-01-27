@@ -188,3 +188,4 @@ class Quaternion():
             value['y'],
             value['z']
         )
+

@@ -3,6 +3,7 @@ from . import Point, Quaternion, Coord, Points, Quaternions
 import numpy as np
 from typing import Union
 
+
 class Transformation():
     def __init__(self, translation: Point, rotation: Quaternion):
         self.translation = translation
@@ -26,14 +27,17 @@ class Transformation():
             return Quaternions.from_quaternion(self.rotation, point.count).transform_point(point)
         else:
             return NotImplemented
-            
-        
 
     def translate(self, point: Union[Point, Points]):
         return point + self.translation
 
     def point(self, point: Union[Point, Points]):
-        return self.rotate(self.translate(point))
+        return self.translate(self.rotate(point))
 
     def quat(self, quat: Union[Quaternion, Quaternions]):
         return self.rotation * quat
+
+    def coord(self, coord: Coord = Coord.from_nothing()):
+        return coord.translate(self.translation).rotate(
+            self.rotation.to_rotation_matrix()
+        )
