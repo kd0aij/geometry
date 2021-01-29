@@ -1,10 +1,13 @@
 README.md
 setup.py
 geometry/__init__.py
+geometry/circle.py
 geometry/coordinate_frame.py
 geometry/gps.py
 geometry/point.py
+geometry/points.py
 geometry/quaternion.py
+geometry/quaternions.py
 geometry/transformation.py
 geometry.egg-info/PKG-INFO
 geometry.egg-info/SOURCES.txt
