@@ -89,18 +89,23 @@ class Quaternion():
         )
 
     @staticmethod
-    def from_axis_angle(angles: Point, factor: float=1):
+    def from_axis_angle(angles: Point, factor: float=1.0 ):
         ab = abs(angles)
         fact = ab * factor
         s = np.sin(fact)
         c = np.cos(fact)
-        return Quaternion( ab * c, angles.x * s, angles.y * s, angles.z * s )
+        qt = Quaternion(ab * c, angles.x * s, angles.y * s, angles.z * s)
+
+        if abs(qt) == 0:
+            return Quaternion(1.0, 0.0, 0.0, 0.0)
+        else:
+            return qt
 
     def to_axis_angle(self):
         """to a point of axis angles. must be normalized first."""
         angle = np.arccos(self.w)
-        s = np.sqrt(1-self.w**2)
-        if (s==0):
+        s = np.sqrt(1 - self.w**2)
+        if (s == 0):
             return self.axis * angle
         else:
             return self.axis * angle / s
@@ -108,8 +113,8 @@ class Quaternion():
     @staticmethod
     def axis_rates(q, qdot):
         wdash = qdot * q.conjugate()
-        return wdash.norm().to_axis_angle() * 2 
-    
+        return wdash.norm().to_axis_angle() * 2
+
     @staticmethod
     def body_axis_rates(q, qdot):
         wdash = q.conjugate() * qdot
@@ -120,7 +125,6 @@ class Quaternion():
 
     def body_rotate(self, rate: Point):
         return (self * Quaternion.from_axis_angle(rate, 0.5)).norm()
-
 
     def to_euler(self):
         roll = atan2(
@@ -161,17 +165,19 @@ class Quaternion():
         if m[2, 2] < 0:
             if m[0, 0] > m[1, 1]:
                 t = 1 + m[0, 0] - m[1, 1] - m[2, 2]
-                q = [m[1, 2]-m[2, 1],  t,  m[0, 1]+m[1, 0],  m[2, 0]+m[0, 2]]
+                q = [m[1, 2] - m[2, 1], t, m[0, 1] + m[1, 0], m[2, 0] + m[0, 2]]
             else:
                 t = 1 - m[0, 0] + m[1, 1] - m[2, 2]
-                q = [m[2, 0]-m[0, 2],  m[0, 1]+m[1, 0],  t,  m[1, 2]+m[2, 1]]
+                q = [m[2, 0] - m[0, 2], m[0, 1] +
+                     m[1, 0], t, m[1, 2] + m[2, 1]]
         else:
             if m[0, 0] < -m[1, 1]:
                 t = 1 - m[0, 0] - m[1, 1] + m[2, 2]
-                q = [m[0, 1]-m[1, 0],  m[2, 0]+m[0, 2],  m[1, 2]+m[2, 1],  t]
+                q = [m[0, 1] - m[1, 0], m[2, 0] +
+                     m[0, 2], m[1, 2] + m[2, 1], t]
             else:
                 t = 1 + m[0, 0] + m[1, 1] + m[2, 2]
-                q = [t,  m[1, 2]-m[2, 1],  m[2, 0]-m[0, 2],  m[0, 1]-m[1, 0]]
+                q = [t, m[1, 2] - m[2, 1], m[2, 0] - m[0, 2], m[0, 1] - m[1, 0]]
 
         q = np.array(q).astype('float64')
         q *= 0.5 / sqrt(t)
@@ -188,4 +194,3 @@ class Quaternion():
             value['y'],
             value['z']
         )
-

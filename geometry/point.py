@@ -48,7 +48,6 @@ class Point(object):
         return "X:{x:.2f}\nY:{y:.2f}\nZ:{z:.2f}".format(x=self.x, y=self.y, z=self.z)
 
     def __abs__(self):
-        # TODO make this numpy array safe
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     def __add__(self, other):
@@ -157,7 +156,6 @@ class Point(object):
     @property
     def asines(self):
         return Point(x=np.asin(self.x), y=np.asin(self.y), z=np.asin(self.z))
-
 
     def rotate(self, rotation_matrix=List[List[float]]):
         return Point(

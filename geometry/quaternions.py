@@ -138,14 +138,17 @@ class Quaternions():
         s = np.sin(fact)
         c = np.cos(fact)
 
-        return Quaternions(np.array([
+        qdat = np.array([
             ab * c, angles.x * s, angles.y * s, angles.z * s
-        ]).T)
+        ]).T
+
+        qdat[abs(Quaternions(qdat)) == 0] = np.array([[1, 0, 0, 0]])
+        return Quaternions(qdat)
 
     def to_axis_angle(self):
         """to a point of axis angles. must be normalized first."""
         angle = np.arccos(self.w)
-        s = np.sqrt(1-self.w**2)
+        s = np.sqrt(1 - self.w**2)
         return self.axis * angle / s
 
     @staticmethod
