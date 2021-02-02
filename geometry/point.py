@@ -151,11 +151,11 @@ class Point(object):
 
     @property
     def acosines(self):
-        return Point(x=np.acos(self.x), y=np.acos(self.y), z=np.acos(self.z))
+        return Point(x=np.arccos(self.x), y=np.arccos(self.y), z=np.arccos(self.z))
 
     @property
     def asines(self):
-        return Point(x=np.asin(self.x), y=np.asin(self.y), z=np.asin(self.z))
+        return Point(x=np.arcsin(self.x), y=np.arcsin(self.y), z=np.arcsin(self.z))
 
     def rotate(self, rotation_matrix=List[List[float]]):
         return Point(
