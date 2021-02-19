@@ -11,7 +11,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from . import Point, cross_product
-from typing import List, get_origin
+from typing import List
 import numpy as np
 import pandas as pd
 
