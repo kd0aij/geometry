@@ -260,3 +260,5 @@ def raisezero(points: Union[Point, List[Point]]):
 def _raisezero(point: Point, tolerance=0.000001):
     if abs(point) < tolerance:
         raise ValueError('magnitude less than tolerance')
+
+
