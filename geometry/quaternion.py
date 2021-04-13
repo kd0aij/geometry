@@ -28,7 +28,7 @@ class Quaternion():
         return {'w': self.w, 'x': self.x, 'y': self.y, 'z': self.z}
 
     def to_dict(self, prefix=''):
-        return {prefix + key: value for key, value in dict(self)}
+        return {'w': self.w, 'x': self.x, 'y': self.y, 'z': self.z}
 
     def __abs__(self):
         return sqrt(self.x**2 + self.y**2 + self.z**2 + self.w**2)
