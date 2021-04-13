@@ -168,13 +168,18 @@ class Quaternions():
         return (self * Quaternions.from_axis_angle(rate, 0.5)).norm()
 
     def diff(self, dt: np.array) -> Points:
-        return Quaternions.axis_rates(
+        newqs = Quaternions.axis_rates(
             self,
             Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
         ) / dt
+        return newqs.remove_outliers(2) # Bodge to get rid of phase jump
+        
+
 
     def body_diff(self, dt: np.array) -> Points:
-        return Quaternions.body_axis_rates(
+        newqs = Quaternions.body_axis_rates(
             self,
             Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
         ) / dt
+        return newqs.remove_outliers(2) # Bodge to get rid of phase jump
+

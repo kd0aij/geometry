@@ -140,3 +140,14 @@ class Points(object):
 
     def diff(self, dt:np.array):
         return Points(np.gradient(self.data,axis=0) / np.tile(dt, (3,1)).T)
+
+    def remove_outliers(self, nstds = 2):
+        ab = abs(self)
+        std = np.nanstd(ab)
+        mean = np.nanmean(ab)
+
+        data = self.data.copy()
+
+        data[abs(ab - mean) > nstds * std, :] = [np.nan, np.nan, np.nan]
+
+        return Points(pd.DataFrame(data).fillna(method="ffill").to_numpy())
