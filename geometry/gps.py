@@ -27,6 +27,9 @@ class GPSPosition(object):
     def to_tuple(self):
         return (self.latitude, self.longitude)
 
+    def to_dict(self):
+        return dict(latitude=self.latitude, longitude=self.longitude)
+
     def __str__(self):
         return 'lat: ' + str(self._latitude) + ', long: ' + str(self._longitude)
 
