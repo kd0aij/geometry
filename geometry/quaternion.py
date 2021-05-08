@@ -89,23 +89,23 @@ class Quaternion():
         )
 
     @staticmethod
-    def from_axis_angle(angles: Point, factor: float=1.0 ):
-        ab = abs(angles)
-        fact = ab * factor
-        s = np.sin(fact)
-        c = np.cos(fact)
-        qt = Quaternion(ab * c, angles.x * s, angles.y * s, angles.z * s)
-
-        if abs(qt) == 0:
+    def from_axis_angle(axangle: Point):
+        angle = abs(axangle)
+        if (angle < .001):
             return Quaternion(1.0, 0.0, 0.0, 0.0)
-        else:
-            return qt
+        axis = axangle / angle
+        s = np.sin(angle/2)
+        c = np.cos(angle/2)
+        return Quaternion(c, axis.x * s, axis.y * s, axis.z * s)
 
+    # from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
     def to_axis_angle(self):
         """to a point of axis angles. must be normalized first."""
-        angle = np.arccos(self.w)
+        if (self.w > 1):
+            self.norm()
+        angle = 2 * np.arccos(self.w)
         s = np.sqrt(1 - self.w**2)
-        if (s == 0):
+        if (s < .001):
             return self.axis * angle
         else:
             return self.axis * angle / s
