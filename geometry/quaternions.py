@@ -114,6 +114,28 @@ class Quaternions():
                 c.y * s.z * c.x - s.y * c.z * s.x
             ]).T
         )
+    def to_euler(self):
+        """
+        this came from here: https://automaticaddison.com/how-to-convert-a-quaternion-into-euler-angles-in-python/
+        Convert a quaternion into euler angles (roll, pitch, yaw)
+        roll is rotation around x in radians (counterclockwise)
+        pitch is rotation around y in radians (counterclockwise)
+        yaw is rotation around z in radians (counterclockwise)
+        """
+        t0 = 2.0 * (self.w * self.x + self.y * self.z)
+        t1 = 1.0 - 2.0 * (self.x * self.x + self.y * self.y)
+        roll_x = np.arctan2(t0, t1)
+     
+        t2 = 2.0 * (self.w * self.y - self.z * self.x)
+        t2 = np.vectorize(lambda t2 :  1.0 if t2 > 1.0 else t2)(t2)
+        t2 =  np.vectorize(lambda t2 :  -1.0 if t2 < -1.0 else t2)(t2)
+        pitch_y = np.arcsin(t2)
+     
+        t3 = 2.0 * (self.w * self.z + self.x * self.y)
+        t4 = 1.0 - 2.0 * (self.y * self.y + self.z * self.z)
+        yaw_z = np.arctan2(t3, t4)
+     
+        return roll_x, pitch_y, yaw_z # in radians TODO convert to point
 
     def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
