@@ -28,6 +28,27 @@ class Coord(object):
         self.y_axis = y_axis.unit()
         self.z_axis = z_axis.unit()
 
+    def __iter__(self):
+        for i in list(self.origin) + list(self.x_axis) + list(self.z_axis):
+            yield i
+
+    def __str__(self):
+        return "origin:{0}\nx_axis:{1}\ny_axis:{1}\nz_axis:{2}".format(str(self.origin), str(self.x_axis), str(self.y_axis), str(self.z_axis))
+
+    def __dict__(self):
+        return dict(
+            origin=dict(self.origin),
+            x_axis=dict(self.x_axis),
+            y_axis=dict(self.y_axis),
+            z_axis=dict(self.z_axis)
+        )
+    def to_dict(self):
+        return dict(
+            origin=dict(self.origin),
+            x_axis=dict(self.x_axis),
+            y_axis=dict(self.y_axis),
+            z_axis=dict(self.z_axis)
+        )
     @property
     def axes(self):
         return [self.x_axis, self.y_axis, self.z_axis]

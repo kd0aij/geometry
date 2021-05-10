@@ -115,27 +115,30 @@ class Quaternions():
             ]).T
         )
     def to_euler(self):
-        """
-        this came from here: https://automaticaddison.com/how-to-convert-a-quaternion-into-euler-angles-in-python/
-        Convert a quaternion into euler angles (roll, pitch, yaw)
-        roll is rotation around x in radians (counterclockwise)
-        pitch is rotation around y in radians (counterclockwise)
-        yaw is rotation around z in radians (counterclockwise)
-        """
-        t0 = 2.0 * (self.w * self.x + self.y * self.z)
-        t1 = 1.0 - 2.0 * (self.x * self.x + self.y * self.y)
-        roll_x = np.arctan2(t0, t1)
-     
-        t2 = 2.0 * (self.w * self.y - self.z * self.x)
-        t2 = np.vectorize(lambda t2 :  1.0 if t2 > 1.0 else t2)(t2)
-        t2 =  np.vectorize(lambda t2 :  -1.0 if t2 < -1.0 else t2)(t2)
-        pitch_y = np.arcsin(t2)
-     
-        t3 = 2.0 * (self.w * self.z + self.x * self.y)
-        t4 = 1.0 - 2.0 * (self.y * self.y + self.z * self.z)
-        yaw_z = np.arctan2(t3, t4)
-     
-        return roll_x, pitch_y, yaw_z # in radians TODO convert to point
+        return Points(np.apply_along_axis(lambda row: Quaternions._to_euler(Quaternion(*row)), 1, self.data))
+
+    @staticmethod
+    def _to_euler(q1):
+        #https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+        test = q1.x*q1.y + q1.z*q1.w
+        if (test > 0.499):# { // singularity at north pole
+            heading = 2 * np.arctan2(q1.x,q1.w)
+            attitude = np.pi/2
+            bank = 0
+            return bank, heading, attitude
+        elif (test < -0.499):# { // singularity at south pole
+            heading = -2 * np.arctan2(q1.x,q1.w)
+            attitude = - np.pi/2
+            bank = 0
+            return bank, heading, attitude
+        
+        sqx = q1.x*q1.x
+        sqy = q1.y*q1.y
+        sqz = q1.z*q1.z
+        heading = np.arctan2(2*q1.y*q1.w-2*q1.x*q1.z , 1 - 2*sqy - 2*sqz)
+        attitude = np.arcsin(2*test)
+        bank = np.arctan2(2*q1.x*q1.w-2*q1.y*q1.z , 1 - 2*sqx - 2*sqz)
+        return bank, heading, attitude
 
     def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
