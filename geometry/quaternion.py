@@ -34,6 +34,10 @@ class Quaternion():
         return sqrt(self.x**2 + self.y**2 + self.z**2 + self.w**2)
 
     @property
+    def xyzw(self):
+        return [self.x, self.y, self.z, self.w]
+
+    @property
     def axis(self):
         return Point(self.x, self.y, self.z)
 
@@ -86,6 +90,7 @@ class Quaternion():
             x=c.y * c.z * s.x - s.y * s.z * c.x,
             y=s.y * c.z * c.x + c.y * s.z * s.x,
             z=c.y * s.z * c.x - s.y * c.z * s.x
+
         )
 
     @staticmethod
@@ -103,7 +108,7 @@ class Quaternion():
         """to a point of axis angles. must be normalized first."""
         if (self.w > 1):
             self.norm()
-        angle = 2 * np.arccos(self.w)
+        angle = 2*np.arccos(self.w)
         s = np.sqrt(1 - self.w**2)
         if (s < .001):
             return self.axis * angle
@@ -113,20 +118,20 @@ class Quaternion():
     @staticmethod
     def axis_rates(q, qdot):
         wdash = qdot * q.conjugate()
-        return wdash.norm().to_axis_angle() * 2
+        return wdash.norm().to_axis_angle()
 
     @staticmethod
     def body_axis_rates(q, qdot):
         wdash = q.conjugate() * qdot
-        return wdash.norm().to_axis_angle() * 2
+        return wdash.norm().to_axis_angle()
 
     def rotate(self, rate: Point):
-        return (Quaternion.from_axis_angle(rate, 0.5) * self).norm()
+        return (Quaternion.from_axis_angle(rate) * self).norm()
 
     def body_rotate(self, rate: Point):
-        return (self * Quaternion.from_axis_angle(rate, 0.5)).norm()
+        return (self * Quaternion.from_axis_angle(rate)).norm()
 
-    def to_euler(self):
+    def _to_euler(self):
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),
             1 - 2 * (self.x * self.x + self.y * self.y)
@@ -144,6 +149,32 @@ class Quaternion():
         )
 
         return Point(roll, pitch, yaw)
+
+    def to_euler(self):
+        # https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+        test = self.x*self.y + self.z*self.w
+        if (test > 0.499):  # { // singularity at north pole
+            return Point(
+                0.0,
+                np.pi/2,
+                2 * np.arctan2(self.x, self.w)
+            )
+        elif (test < -0.499):  # { // singularity at south pole
+            return Point(
+                0.0,
+                - np.pi/2,
+                -2 * np.arctan2(self.x, self.w)
+            )
+        sqw = self.w**2
+        sqx = self.x**2
+        sqy = self.y**2
+        sqz = self.z**2
+        unit = sqx + sqy + sqz + sqw
+        return Point(
+            np.arctan2(2*self.x*self.w-2*self.y*self.z, 1 - 2*sqx - 2*sqz),
+            np.arcsin(2*test/unit),
+            np.arctan2(2*self.y*self.w-2*self.x*self.z, 1 - 2*sqy - 2*sqz)
+        )
 
     def to_rotation_matrix(self):
         """http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
