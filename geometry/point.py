@@ -261,4 +261,10 @@ def _raisezero(point: Point, tolerance=0.000001):
     if abs(point) < tolerance:
         raise ValueError('magnitude less than tolerance')
 
+def vector_norm(point: Point):
+    return abs(point)
+
+def normalize_vector(point: Point):
+    raisezero(point)
+    return point / abs(point)
 

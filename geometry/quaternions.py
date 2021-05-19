@@ -28,6 +28,10 @@ class Quaternions():
     def z(self):
         return self.data[:, 3]
 
+    @property
+    def xyzw(self):
+        return np.array([self.x, self.y, self.z, self.w]).T
+
     @staticmethod
     def from_pandas(df):
         return Quaternions(np.array(df))
@@ -140,6 +144,34 @@ class Quaternions():
         bank = np.arctan2(2*q1.x*q1.w-2*q1.y*q1.z , 1 - 2*sqx - 2*sqz)
         return bank, heading, attitude
 
+    def to_euler(self):
+        # roll (x-axis rotation)
+        sinr_cosp = 2 * (self.w * self.x + self.y * self.z)
+        cosr_cosp = 1 - 2 * (self.x * self.x + self.y * self.y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        # pitch (y-axis rotation)
+        sinp = 2 * (self.w * self.y - self.z * self.x)
+        pitch = np.arcsin(sinp)
+                
+        # yaw (z-axis rotation)
+        siny_cosp = 2 * (self.w * self.z + self.x * self.y)
+        cosy_cosp = 1 - 2 * (self.y * self.y + self.z * self.z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+
+        test = np.abs(sinp) >= 0.9999
+        if len(sinp[test]) > 0:
+            pitch[test] = np.copysign(np.pi / 2, sinp[test])
+            yaw[test] = np.zeros(len(sinp[test]))
+            roll[test] = 2* np.copysign(
+                np.arctan2(self.x[test],self.w[test]),
+                sinp[test]
+            )
+
+        return Points(np.array([roll, pitch, yaw]).T)
+    
+
+
     def transform_point(self, point: Union[Point, Points]):
         '''Transform a point by the rotation described by self'''
         if isinstance(point, Point):
@@ -157,23 +189,32 @@ class Quaternions():
             return NotImplemented
 
     @staticmethod
-    def from_axis_angle(angles: Points, factor: float = 1):
-        ab = abs(angles)
-        fact = ab * factor
-        s = np.sin(fact)
-        c = np.cos(fact)
+    def from_axis_angle(axangles: Points):
+        small = 0.000001
+        angles = abs(axangles)
 
-        qdat = np.array([
-            ab * c, angles.x * s, angles.y * s, angles.z * s
-        ]).T
+        qdat = np.tile(np.array([1.0, 0.0, 0.0, 0.0]), (len(angles), 1))
 
-        qdat[abs(Quaternions(qdat)) == 0] = np.array([[1, 0, 0, 0]])
+        if angles.any() >= small:
+            baxangles = Points(axangles.data[angles >= small])
+            bangles = angles[angles >= small]
+
+            s = np.sin(bangles/2)
+            c = np.cos(bangles/2)
+            axis = baxangles / bangles
+
+            qdat[angles >= small] = np.array([
+                c, axis.x * s, axis.y * s, axis.z * s
+            ]).T
+
+        #qdat[abs(Quaternions(qdat)) < .001] = np.array([[1, 0, 0, 0]])
         return Quaternions(qdat)
 
     def to_axis_angle(self):
         """to a point of axis angles. must be normalized first."""
-        angle = np.arccos(self.w)
+        angle = 2 * np.arccos(self.w)
         s = np.sqrt(1 - self.w**2)
+        s[s < 0.000001] = 1.0
         return self.axis * angle / s
 
     @staticmethod
@@ -187,24 +228,21 @@ class Quaternions():
         return wdash.norm().to_axis_angle() * 2
 
     def rotate(self, rate: Points):
-        return (Quaternions.from_axis_angle(rate, 0.5) * self).norm()
+        return (Quaternions.from_axis_angle(rate) * self).norm()
 
     def body_rotate(self, rate: Points):
-        return (self * Quaternions.from_axis_angle(rate, 0.5)).norm()
+        return (self * Quaternions.from_axis_angle(rate)).norm()
 
     def diff(self, dt: np.array) -> Points:
         newqs = Quaternions.axis_rates(
             self,
             Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
         ) / dt
-        return newqs.remove_outliers(2) # Bodge to get rid of phase jump
-        
-
+        return newqs.remove_outliers(2)  # Bodge to get rid of phase jump
 
     def body_diff(self, dt: np.array) -> Points:
         newqs = Quaternions.body_axis_rates(
             self,
             Quaternions(np.vstack([self.data[1:, :], self.data[-1, :]]))
         ) / dt
-        return newqs.remove_outliers(2) # Bodge to get rid of phase jump
-
+        return newqs.remove_outliers(2)  # Bodge to get rid of phase jump
