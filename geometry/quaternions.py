@@ -163,11 +163,8 @@ class Quaternions():
         if len(sinp[test]) > 0:
             pitch[test] = np.copysign(np.pi / 2, sinp[test])
             yaw[test] = np.zeros(len(sinp[test]))
-            roll[test] = 2* np.copysign(
-                np.arctan2(self.x[test],self.w[test]),
-                sinp[test]
-            )
 
+            roll[test] = 2* np.arctan2(self.x[test],self.w[test])
         return Points(np.array([roll, pitch, yaw]).T)
     
 
