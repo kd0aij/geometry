@@ -82,6 +82,7 @@ class Quaternion():
 
     @staticmethod
     def from_euler(eul: Point):
+        # xyz-fixed Euler angle convention: matches ArduPilot AP_Math/Quaternion::from_euler
         half = eul * 0.5
         c = half.cosines
         s = half.sines
@@ -132,6 +133,7 @@ class Quaternion():
         return (self * Quaternion.from_axis_angle(rate)).norm()
 
     def to_euler(self):
+        # xyz-fixed Euler angle convention: matches ArduPilot AP_Math/Quaternion::to_euler
         roll = atan2(
             2 * (self.w * self.x + self.y * self.z),
             1 - 2 * (self.x * self.x + self.y * self.y)

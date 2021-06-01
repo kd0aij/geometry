@@ -29,6 +29,17 @@ class TestQuaternion(unittest.TestCase):
             spout
         )
 
+    def test_to_euler(self):
+        qarr = np.random.random((500, 4))
+        for i in range(0,len(qarr)):
+            q = Quaternion(*qarr[i,:]).norm()
+            sR = R.from_quat(q.xyzw)
+            np.testing.assert_array_almost_equal(
+                np.array(tuple(q.to_euler())),
+                sR.as_euler("xyz")
+            )
+            
+
     def test_from_rotation_matrix(self):
 
         rmats = [
