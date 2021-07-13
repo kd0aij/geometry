@@ -31,7 +31,7 @@ class GPSPosition(object):
         return dict(latitude=self.latitude, longitude=self.longitude)
 
     def __str__(self):
-        return 'lat: ' + str(self._latitude) + ', long: ' + str(self._longitude)
+        return 'lat: ' + str(self.latitude) + ', long: ' + str(self.longitude)
 
     def _longitude_scale(self):
         return max(math.cos(math.radians(self.latitude)), 0.01)
