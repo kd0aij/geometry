@@ -265,6 +265,7 @@ def vector_norm(point: Point):
     return abs(point)
 
 def normalize_vector(point: Point):
-    raisezero(point)
+    # raisezero(point)
+    if abs(point) < 0.000001: return point
     return point / abs(point)
 
